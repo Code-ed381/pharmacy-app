@@ -37,7 +37,7 @@ Coded by www.creative-tim.com
 
 // Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
+import Employees from "layouts/employees";
 import Billing from "layouts/billing";
 import Invoice from "layouts/invoice";
 
@@ -89,11 +89,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Table",
-    key: "tables",
-    icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/tables",
-    component: <Tables />,
+    name: "Staff",
+    key: "employees",
+    icon: <Icon fontSize="small">badge</Icon>,
+    route: "/employees",
+    component: <Employees />,
   },
   // {
   //   type: "collapse",
@@ -121,28 +121,28 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Sales Report",
+    name: "Reports",
     key: "report",
     icon: <Icon fontSize="small">summarize</Icon>, 
     route: "/report",
     component: <Report />,
   },
-  {
-    type: "collapse",
-    name: "Sign In",
-    key: "sign-in",
-    icon: <Icon fontSize="small">login</Icon>,
-    route: "/authentication/sign-in",
-    component: <SignIn />,
-  },
-  {
-    type: "collapse",
-    name: "Sign Up",
-    key: "sign-up",
-    icon: <Icon fontSize="small">assignment</Icon>,
-    route: "/authentication/sign-up",
-    component: <SignUp />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Sign In",
+  //   key: "sign-in",
+  //   icon: <Icon fontSize="small">login</Icon>,
+  //   route: "/authentication/sign-in",
+  //   component: <SignIn />,
+  // },
+  // {
+  //   type: "collapse",
+  //   name: "Sign Up",
+  //   key: "sign-up",
+  //   icon: <Icon fontSize="small">assignment</Icon>,
+  //   route: "/authentication/sign-up",
+  //   component: <SignUp />,
+  // },
 ];
 
 export default routes;

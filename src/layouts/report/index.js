@@ -113,8 +113,8 @@ function Report() {
               >
                 <InputBase
                   sx={{ ml: 1, flex: 1 }}
-                  placeholder="Search Medicines"
-                  inputProps={{ 'aria-label': 'search medicines' }}
+                  placeholder="Search Reports"
+                  inputProps={{ 'aria-label': 'search reports' }}
                 />
                 <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
                   <SearchIcon />
