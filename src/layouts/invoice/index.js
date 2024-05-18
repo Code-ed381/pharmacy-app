@@ -29,8 +29,8 @@ import DataTable from "examples/Tables/DataTable";
 import BillingInformation from "layouts/billing/components/BillingInformation";
 
 // Data 
-import authorsTableData from "layouts/tables/data/authorsTableData";
-import projectsTableData from "layouts/tables/data/projectsTableData";
+import authorsTableData from "layouts/invoice/data/authorsTableData";
+import projectsTableData from "layouts/invoice/data/projectsTableData";
 
 import MDButton from "components/MDButton"; 
 import TextField from '@mui/material/TextField';
@@ -43,82 +43,6 @@ function Tables() {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
-        {/* <Grid container spacing={1}>
-          <MDBox mb={3} pt={3} px={2}>
-            <Grid container spacing={1}>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MDButton variant="contained" color="info" size="medium">
-                  add invoice
-                </MDButton>
-              </Grid>
-            </Grid>
-          </MDBox>
-        </Grid> */}
-
-        {/* <MDBox mb={3} pt={3} px={2}>
-          <Grid container spacing={1}>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected>Companies</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected>Medicine</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected>Invoice ID</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected >Customer type</option>
-                <option value="1">Wholesale</option>
-                <option value="2">Retail</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <MDButton variant="contained" color="info" size="medium">
-                search
-              </MDButton>
-            </Grid>
-          </Grid>
-        </MDBox> */}
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -137,48 +61,20 @@ function Tables() {
                 </MDTypography>
 
                 <Grid container spacing={1} mt={2}>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected>Companies</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </select>
+                  <Grid item xs={12} md={5}>
+                    <input type="text" className="form-control" id="exampleFormControlInput1" placeholder="Search Invoice"/>
                   </Grid>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected>Medicine</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </select>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected>Invoice ID</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </select>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected >Customer type</option>
-                      <option value="1">Wholesale</option>
-                      <option value="2">Retail</option>
-                    </select>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
+                  {/* <Grid item xs={12} md={3}>
                     <MDButton variant="contained" color="warning" size="medium">
                       search
                     </MDButton>
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               </MDBox>
 
               <MDBox >
                 <Grid container spacing={1} mx={2} my={2}>
-                  <MDButton variant="contained" color="secondary" size="medium">
+                  <MDButton variant="contained" color="secondary" size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     create invoice
                   </MDButton>
                 </Grid>
@@ -193,36 +89,134 @@ function Tables() {
               </MDBox>
             </Card>
           </Grid>
-          {/* <Grid item xs={12}>
-            <Card>
-              <MDBox
-                mx={2}
-                mt={-3}
-                py={3}
-                px={2}
-                variant="gradient"
-                bgColor="info"
-                borderRadius="lg"
-                coloredShadow="info"
-              >
-                <MDTypography variant="h6" color="white">
-                  Projects Table
-                </MDTypography>
-              </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={{ columns: pColumns, rows: pRows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
-            </Card>
-          </Grid> */}
         </Grid>
       </MDBox>
-      {/* <Footer /> */}
+      <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{maxHeight: "700px", marginTop: "100px"}}>
+        <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">Invoice</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>  
+            <div className="modal-body">
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={4}>
+                <div className="mb-3">
+                  <label htmlFor="exampleFormControlInput1" className="form-label">Invoice Header Information</label>
+                  <h6>Invoice ID</h6>
+                  <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="name@example.com" disabled readOnly/>
+                </div>
+                <div className="mb-3">
+                  <h6>Invoice Date</h6>
+                  <input type="date" className="form-control" id="exampleFormControlInput1" />
+                </div>
+                <div className="mb-3">
+                  <h6>Due Date</h6>
+                  <input type="date" className="form-control" id="exampleFormControlInput1"/>
+                </div>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <div className="mb-3">
+                  <label htmlFor="exampleFormControlInput1" className="form-label">Customer Information</label>
+                  <h6>Company</h6>
+                  <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="name@example.com"/>
+                </div>
+                <div className="mb-3">
+                  <h6>Name</h6>
+                  <input type="text" className="form-control" id="exampleFormControlInput1" />
+                </div>
+                <div className="mb-3">
+                  <h6>Phone</h6>
+                  <input type="text" className="form-control" id="exampleFormControlInput1"/>
+                </div>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <div className="mb-3">
+                  <label htmlFor="exampleFormControlInput1" className="form-label">Billing Information</label>
+                  <h6>Mode of Payment</h6>
+                  <select className="form-select" aria-label="Default select example">
+                    <option selected>Mode of Payment</option>
+                    <option value="1">Cash</option>
+                    <option value="2">Momo</option>
+                    <option value="3">Credit/Debit Card</option>
+                    <option value="3">Bank Transfer</option>
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <h6>Payment Option</h6>
+                  <select className="form-select" aria-label="Default select example">
+                    <option selected>Payment option</option>
+                    <option value="1">Full payment</option>
+                    <option value="2">1 months</option>
+                    <option value="3">2 months</option>
+                    <option value="3">4 months</option>
+                  </select>
+                </div>
+              </Grid>
+            </Grid>
+            <hr/>
+            <label htmlFor="exampleFormControlInput1" className="form-label">Items Information</label>
+            <Grid container spacing={1}>
+              <Grid item xs={12} md={6}>
+                <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Medicine"/>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Quantity"/>
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <button type="button" className="btn btn-primary">Add medicine</button>
+              </Grid>
+            </Grid>
+            <Grid container spacing={1} mt={3}>
+              <Grid item xs={12} md={12}>
+                <table className="table table-sm table-striped table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Unit Price</th>
+                      <th scope="col">Total Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>Mark</td>
+                      <td>Otto</td>
+                      <td>@mdo</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Jacob</td>
+                      <td>Thornton</td>
+                      <td>@fat</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td>John</td>
+                      <td>Thornton</td>
+                      <td>@twitter</td>
+                    </tr>
+                    <tr>
+                      {/* <th scope="row">3</th> */}
+                      <td colSpan="4">Total</td>
+                      <td>@twitter</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <a href="#" style={{fontSize: "15px"}}>Clear table</a>
+              </Grid>
+            </Grid>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-success ">Print</button>
+              <button type="button" className="btn btn-primary">Save</button>
+              <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

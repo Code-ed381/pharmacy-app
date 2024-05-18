@@ -15,11 +15,17 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+// Material UI
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import Grid from "@mui/material/Grid";
 
-
+// Material Icons
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
-
+import PrintIcon from '@mui/icons-material/Print';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -47,7 +53,7 @@ export default function data() {
 
   const Job = ({ title, description }) => (
     <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+      <MDTypography display="block" variant="caption" color="text" fontWeight="medium" fontSize="15px">
         {title}
       </MDTypography>
       <MDTypography variant="caption">{description}</MDTypography>
@@ -57,18 +63,23 @@ export default function data() {
   return {
     columns: [
       { Header: "customer", accessor: "author", align: "left" },
-      { Header: "function", accessor: "function", align: "left" },
-      { Header: "status", accessor: "status", align: "center" },
-      { Header: "total amount", accessor: "total amount", align: "center" },
-      { Header: "balance", accessor: "balance", align: "center" },
-      { Header: "date", accessor: "date", align: "center" },
+      { Header: "Invoice ID", accessor: "medicine", align: "left" },
+      { Header: "total amount (GHc)", accessor: "amount", align: "center" },
+      { Header: "Paid (GHc)", accessor: "paid", align: "center" },
+      { Header: "balance (GHc)", accessor: "balance", align: "center" },
+      { Header: "Payment Mode", accessor: "status", align: "center" },
+      { Header: "date", accessor: "employed", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
     ],
 
     rows: [ 
       {
-        author: <Author image={team2} name="John Michael" email="john@creative-tim.com" />,
-        function: <Job title="Manager" description="Organization" />,
+        author: <Author image={team2} name="John Michael" email="Jim-Beck Pharmacy" />,
+        medicine: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+           31238374
+          </MDTypography>
+        ),
         status: (
           <MDBox ml={-1}>
             <MDBadge badgeContent="wholesale" color="info" variant="gradient" size="lg" />
@@ -79,117 +90,175 @@ export default function data() {
             23/04/18
           </MDTypography>
         ),
+        amount: (
+          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+            4000
+          </MDTypography>
+        ),
+        paid: (
+          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+            1000
+          </MDTypography>
+        ),
+        balance: (
+          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+            3000
+          </MDTypography>
+        ),
         action: (
           <>
             <MDBox>
-              <VisibilityIcon />
-              <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+              <MDTypography className="btn btn-outline-primary btn-sm" variant="caption" color="text" fontWeight="medium" data-bs-toggle="modal" data-bs-target="#view">
                 View
+                <VisibilityIcon />
+              </MDTypography>
+            </MDBox>
+            <MDBox>
+              <MDTypography className="btn btn-outline-success btn-sm" variant="caption" color="text" fontWeight="medium">
+                Print
+              <PrintIcon />
+              </MDTypography>
+            </MDBox>
+            <MDBox>
+              <MDTypography className="btn btn-outline-secondary btn-sm" variant="caption" color="text" fontWeight="medium">
+                Edit
+               <EditIcon />
               </MDTypography>
             </MDBox>
 
-            <MDBox>
-              <EditIcon />
-              <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-                Edit
-              </MDTypography>
-          </MDBox>
+            <div className="modal fade" id="view" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h1 className="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div className="modal-body">
+                    <Grid container spacing={1}>
+                      <Grid item xs={12} md={4}>
+                        <div className="mb-3">
+                          <label htmlFor="exampleFormControlInput1" className="form-label">Invoice Header Information</label>
+                          <h6>Invoice ID</h6>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              3000
+                            </MDTypography>
+                        </div>
+                        <div className="mb-3">
+                          <h6>Invoice Date</h6>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              3000
+                            </MDTypography>
+                        </div>
+                        <div className="mb-3">
+                          <h6>Due Date</h6>
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            3000
+                          </MDTypography>
+                        </div>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <div className="mb-3">
+                          <label htmlFor="exampleFormControlInput1" className="form-label">Customer Information</label>
+                          <h6>Company</h6>
+                          {/* <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="name@example.com"/> */}
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            3000
+                          </MDTypography>
+                        </div>
+                        <div className="mb-3">
+                          <h6>Customer Name</h6>
+                          {/* <input type="text" className="form-control" id="exampleFormControlInput1" /> */}
+
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            3000
+                          </MDTypography>
+                        </div>
+                        <div className="mb-3">
+                          <h6>Phone</h6>
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            3000
+                          </MDTypography>
+                        </div>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <div className="mb-3">
+                          <label htmlFor="exampleFormControlInput1" className="form-label">Billing Information</label>
+                          <h6>Mode of Payment</h6>
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            3000
+                          </MDTypography>
+                        </div>
+                        <div className="mb-3">
+                          <h6>Payment Option</h6>
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            3000
+                          </MDTypography>
+                        </div>
+                      </Grid>
+                    </Grid>
+                    <hr/>
+                    <label htmlFor="exampleFormControlInput1" className="form-label">Items Information</label>
+                    {/* <Grid container spacing={1}>
+                      <Grid item xs={12} md={6}>
+                        <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Medicine"/>
+                      </Grid>
+                      <Grid item xs={12} md={3}>
+                        <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Quantity"/>
+                      </Grid>
+                      <Grid item xs={12} md={3}>
+                        <button type="button" className="btn btn-primary">Add medicine</button>
+                      </Grid>
+                    </Grid> */}
+                    <Grid container spacing={1}>
+                      <Grid item xs={12} md={12}>
+                        <table className="table table-sm table-striped table-bordered table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">#</th>
+                              <th scope="col">Name</th>
+                              <th scope="col">Quantity</th>
+                              <th scope="col">Unit Price</th>
+                              <th scope="col">Total Price</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">1</th>
+                              <td>Mark</td>
+                              <td>Otto</td>
+                              <td>@mdo</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">2</th>
+                              <td>Jacob</td>
+                              <td>Thornton</td>
+                              <td>@fat</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">3</th>
+                              <td>John</td>
+                              <td>Thornton</td>
+                              <td>@twitter</td>
+                            </tr>
+                            <tr>
+                              {/* <th scope="row">3</th> */}
+                              <td colSpan="4">Total</td>
+                              <td>@twitter</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <a href="#" style={{fontSize: "15px"}}>Clear table</a>
+                      </Grid>
+                    </Grid>
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" className="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Alexa Liras" email="alexa@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="Retail" color="dark" variant="gradient" size="lg" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            11/01/19
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team4} name="Laurent Perrier" email="laurent@creative-tim.com" />,
-        function: <Job title="Executive" description="Projects" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            19/09/17
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Michael Levi" email="michael@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            24/12/08
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Richard Gran" email="richard@creative-tim.com" />,
-        function: <Job title="Manager" description="Executive" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            04/10/21
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team4} name="Miriam Eric" email="miriam@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            14/09/20
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
         ),
       },
     ],

@@ -37,8 +37,8 @@ import DataTable from "examples/Tables/DataTable";
 import BillingInformation from "layouts/billing/components/BillingInformation";
 
 // Data
-import authorsTableData from "layouts/tables/data/authorsTableData";
-import projectsTableData from "layouts/tables/data/projectsTableData";
+import authorsTableData from "layouts/employees/data/authorsTableData";
+import projectsTableData from "layouts/employees/data/projectsTableData";
 
 import MDButton from "components/MDButton"; 
 import TextField from '@mui/material/TextField';

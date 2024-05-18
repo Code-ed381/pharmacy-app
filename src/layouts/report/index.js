@@ -41,8 +41,8 @@ import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 
 
-import authorsTableData from "layouts/tables/data/authorsTableData";
-import projectsTableData from "layouts/tables/data/projectsTableData";
+import authorsTableData from "layouts/employees/data/authorsTableData";
+import projectsTableData from "layouts/employees/data/projectsTableData";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
