@@ -111,14 +111,14 @@ const routes = [
   //   route: "/customers",
   //   component: <Notifications />,
   // },
-  {
-    type: "collapse",
-    name: "Manufacturers",
-    key: "manufacturers",
-    icon: <Icon fontSize="small">factory</Icon>,
-    route: "/manufacturers",
-    component: <Manufacturer />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Manufacturers",
+  //   key: "manufacturers",
+  //   icon: <Icon fontSize="small">factory</Icon>,
+  //   route: "/manufacturers",
+  //   component: <Manufacturer />,
+  // },
   {
     type: "collapse",
     name: "Reports",
@@ -127,22 +127,22 @@ const routes = [
     route: "/report",
     component: <Report />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Sign In",
-  //   key: "sign-in",
-  //   icon: <Icon fontSize="small">login</Icon>,
-  //   route: "/authentication/sign-in",
-  //   component: <SignIn />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "Sign Up",
-  //   key: "sign-up",
-  //   icon: <Icon fontSize="small">assignment</Icon>,
-  //   route: "/authentication/sign-up",
-  //   component: <SignUp />,
-  // },
+  {
+    type: "collapse",
+    name: "Sign In",
+    key: "sign-in",
+    icon: <Icon fontSize="small">login</Icon>,
+    route: "/authentication/sign-in",
+    component: <SignIn />,
+  },
+  {
+    type: "collapse",
+    name: "Sign Up",
+    key: "sign-up",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/authentication/sign-up",
+    component: <SignUp />,
+  },
 ];
 
 export default routes;

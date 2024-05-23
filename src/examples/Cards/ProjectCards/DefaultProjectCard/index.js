@@ -131,7 +131,7 @@ function DefaultProjectCard({ image, label, title, description, action, authors 
               {action.label}
             </MDButton>
           )}
-          <MDBox display="flex">{renderAuthors}</MDBox>
+          {/* <MDBox display="flex">{renderAuthors}</MDBox> */}
         </MDBox>
       </MDBox>
     </Card>

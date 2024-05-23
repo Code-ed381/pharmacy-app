@@ -126,7 +126,7 @@ export default function data() {
               </MDTypography>
             </MDBox>
 
-            <div className="modal fade" id="view" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id="view"data-bs-toggle="modal"  data-bs-target="#view" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                   <div className="modal-header">
@@ -258,6 +258,8 @@ export default function data() {
                 </div>
               </div>
             </div>
+
+
           </>
         ),
       },

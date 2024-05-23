@@ -16,6 +16,10 @@ Coded by www.creative-tim.com
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -133,53 +137,32 @@ function Employees() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Invoice Table
+                  Employees Table
                 </MDTypography>
 
                 <Grid container spacing={1} mt={2}>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected>Companies</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </select>
+                  <Grid item xs={12} md={6}>
+                  <Paper
+                    component="form"
+                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+                  >
+                    <InputBase
+                      sx={{ ml: 1, flex: 1 }}
+                      placeholder="Search Employee"
+                      inputProps={{ 'aria-label': 'search employee' }}
+                    />
+                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+                      <SearchIcon />
+                    </IconButton>
+                  </Paper>
                   </Grid>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected>Medicine</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </select>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected>Invoice ID</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </select>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <select className="form-select" aria-label="Default select example">
-                      <option selected >Customer type</option>
-                      <option value="1">Wholesale</option>
-                      <option value="2">Retail</option>
-                    </select>
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <MDButton variant="contained" color="warning" size="medium">
-                      search
-                    </MDButton>
-                  </Grid>
-                </Grid>
+                </Grid> 
               </MDBox>
 
               <MDBox >
                 <Grid container spacing={1} mx={2} my={2}>
-                  <MDButton variant="contained" color="secondary" size="medium">
-                    create invoice
+                  <MDButton variant="contained" color="secondary" size="medium" data-bs-toggle="modal" data-bs-target="#customer">
+                    add employee
                   </MDButton>
                 </Grid>
 
@@ -222,6 +205,70 @@ function Employees() {
           </Grid> */}
         </Grid>
       </MDBox>
+
+
+      <div className="modal fade" id="customer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">New Employee</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              {/* <div className="mb-3">
+                <h6>Full Name</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1" 
+                  placeholder="eg. John Doe"
+                  onChange={(e)=> {setName(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Email</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setEmail(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Phone Number</h6>
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setPhone(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Address</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setAddress(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Image URL</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setImage(e.target.value)}}
+                />
+              </div> */}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary" >Save</button>
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* <Footer /> */}
     </DashboardLayout>
   );

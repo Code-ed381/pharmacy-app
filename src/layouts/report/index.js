@@ -16,8 +16,8 @@ Coded by www.creative-tim.com
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import MenuIcon from '@mui/icons-material/Menu';
 import DirectionsIcon from '@mui/icons-material/Directions';
 
 import DataTable from "examples/Tables/DataTable";

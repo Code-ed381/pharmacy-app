@@ -12,10 +12,16 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+import { useEffect, useState } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -35,10 +41,36 @@ import projectsTableData from "layouts/invoice/data/projectsTableData";
 import MDButton from "components/MDButton"; 
 import TextField from '@mui/material/TextField';
 
-function Tables() {
+function Invoice() {
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
+  
+  let data = [
+    { id: 1, name: 'Rhizin', quantity: 4, price: 10,  },
+    { id: 2, name: 'Magazin', quantity: 6, price: 32,  },
+    { id: 3, name: 'Kwik Action', quantity: 3, price: 15,  },
+  ]
 
+  const [medicine, setMedicine] = useState([]);
+  const [quantity, setQuantity] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [theData, setTheData] = useState(data)
+
+
+  const handleAdd = ()=> {
+    var num = data.length + 1
+
+    data.push({
+      id: num,
+      name: medicine,
+      quantity: quantity,
+      price: 9
+    })
+    
+    setTheData(data);
+  }
+
+ 
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -61,15 +93,22 @@ function Tables() {
                 </MDTypography>
 
                 <Grid container spacing={1} mt={2}>
-                  <Grid item xs={12} md={5}>
-                    <input type="text" className="form-control" id="exampleFormControlInput1" placeholder="Search Invoice"/>
+                  <Grid item xs={12} md={6}>
+                  <Paper
+                    component="form"
+                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+                  >
+                    <InputBase
+                      sx={{ ml: 1, flex: 1 }}
+                      placeholder="Search Invoice"
+                      inputProps={{ 'aria-label': 'search Invoice' }}
+                    />
+                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+                      <SearchIcon />
+                    </IconButton>
+                  </Paper>
                   </Grid>
-                  {/* <Grid item xs={12} md={3}>
-                    <MDButton variant="contained" color="warning" size="medium">
-                      search
-                    </MDButton>
-                  </Grid> */}
-                </Grid>
+                </Grid> 
               </MDBox>
 
               <MDBox >
@@ -158,13 +197,25 @@ function Tables() {
             <label htmlFor="exampleFormControlInput1" className="form-label">Items Information</label>
             <Grid container spacing={1}>
               <Grid item xs={12} md={6}>
-                <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Medicine"/>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1" 
+                  placeholder="Medicine"
+                  onChange={(e)=> {setMedicine(e.target.value)}}
+                />
               </Grid>
               <Grid item xs={12} md={3}>
-                <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Quantity"/>
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  id="exampleFormControlInput1" 
+                  placeholder="Quantity"
+                  onChange={(e)=> {setQuantity(e.target.value)}}
+                />
               </Grid>
               <Grid item xs={12} md={2}>
-                <button type="button" className="btn btn-primary">Add medicine</button>
+                <button type="button" className="btn btn-primary" onClick={handleAdd}>Add medicine</button>
               </Grid>
             </Grid>
             <Grid container spacing={1} mt={3}>
@@ -180,28 +231,19 @@ function Tables() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <th scope="row">1</th>
-                      <td>Mark</td>
-                      <td>Otto</td>
-                      <td>@mdo</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">2</th>
-                      <td>Jacob</td>
-                      <td>Thornton</td>
-                      <td>@fat</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">3</th>
-                      <td>John</td>
-                      <td>Thornton</td>
-                      <td>@twitter</td>
-                    </tr>
+                    {theData?.map((medicine)=> 
+                      <tr key={medicine.id}>
+                        <th scope="row">{medicine.id}</th>
+                        <td>{medicine.name}</td>
+                        <td>{medicine.quantity}</td>
+                        <td>{medicine.price}</td>
+                        <td>{medicine.price * medicine.quantity}</td>
+                      </tr>
+                    )}
                     <tr>
                       {/* <th scope="row">3</th> */}
-                      <td colSpan="4">Total</td>
-                      <td>@twitter</td>
+                      <td colSpan="4" className="text-end">Total</td>
+                      <td className="text-end">{total}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -221,4 +263,4 @@ function Tables() {
   );
 }
 
-export default Tables;
+export default Invoice;
