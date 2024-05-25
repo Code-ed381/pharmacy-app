@@ -73,6 +73,8 @@ function Medicine() {
     console.log(data || error)
   }
 
+  
+
   return (
     <DashboardLayout>
       <DashboardNavbar />

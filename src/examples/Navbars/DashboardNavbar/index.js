@@ -104,7 +104,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
     >
-      <NotificationItem icon={<Icon>person</Icon>} title="Profile" />
+      <NotificationItem component="a" href="/profile" icon={<Icon>person</Icon>} title="Profile" />
       <NotificationItem component="a" href="/authentication/sign-up" icon={<Icon>emoji_people</Icon>} title="Register Staff" />
       <NotificationItem component="a" href="/authentication/sign-in" icon={<Icon>logout</Icon>} title="Sign Out" />
     </Menu>
