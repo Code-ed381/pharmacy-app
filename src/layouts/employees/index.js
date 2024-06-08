@@ -21,6 +21,11 @@ import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import { CardActionArea } from '@mui/material';
+
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -42,6 +47,30 @@ import TextField from '@mui/material/TextField';
 function Employees() {
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
+  const [data, setData] = useState([]);
+
+  let isMounted = false
+  
+  useEffect(() => {
+      const controller = new AbortController();
+
+      if(!isMounted) {
+          isMounted = true
+          const getStaff = async ()=> {
+            let { data: customers, error } = await supabase
+            .from('customers')
+            .select('*')
+                    
+            setData(customers)
+            console.log(customers)
+          }
+          getStaff()
+      }
+
+      return ()=> {
+          controller.abort();
+      }
+  }, [])
 
   return (
     <DashboardLayout>
@@ -166,13 +195,34 @@ function Employees() {
                   </MDButton>
                 </Grid>
 
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={true}
-                  entriesPerPage={true}
-                  showTotalEntries={true}
-                  
-                />  
+                <MDBox p={2}>
+                  <Grid container spacing={1}>
+                    {data?.map((customer)=> 
+                      <Grid key={customer.id} item xs={12} md={3} xl={2}>
+                        <Card sx={{ maxWidth: 345 }}>
+                          <CardActionArea>
+                            <CardMedia
+                              component="img"
+                              height="140"
+                              image={customer.image}
+                              alt={customer.name}
+                            />
+                            <CardContent>
+                              <Typography gutterBottom variant="h5" component="div">
+                                {customer.name}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {customer.address}
+                              </Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
+                      </Grid>
+                    )}
+                  </Grid>
+                </MDBox>
+
+
               </MDBox>
             </Card>
           </Grid>

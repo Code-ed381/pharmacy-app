@@ -57,14 +57,18 @@ function Invoice() {
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
   
-  let initialData = []
-
   const [mode, setMode] = useState('');
+  const [installment, setInstallment] = useState('');
+  const [due_date, setDue_date] = useState(new Date());
   const [medicine, setMedicine] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [customer_id, setCustomer_id] = useState('');
   const [items, setItems] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [total, setTotal] = useState(0);
-  const [data, setData] = useState(initialData)
+  const [subtotal, setSubtotal] = useState(0);
+  const [invoice, setInvoice] = useState([]);
+
 
   let isMounted = false
   
@@ -79,17 +83,27 @@ function Invoice() {
         .select('*')
                 
         setItems(medicine)
-        console.log(medicine)
       }
-      getMedicine()
+
+      const getCustomers = async ()=> {
+        let { data: customers, error } = await supabase
+        .from('customers')
+        .select('*')
+          
+        setCustomers(customers)
+      }
+
+      getCustomers();
+      getMedicine();
     }
 
     return ()=> {
       controller.abort();
     }
   }, [])
-  
+
   const [formData, setFormData] = useState({
+    id: '',
     name: '',
     quantity: '',
     unit_price: '',
@@ -106,40 +120,76 @@ function Invoice() {
     .eq('name', value)
 
     setMedicine(medicine[0])
-    
-    // setFormData({
-    //   ...formData,
-    //   id: value,
-    // });
   };
 
   // Handle form submission to add new object to array
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
+    var helo = medicine.price * quantity
+
     const newEntry = {
+      id: medicine.id,
       name: medicine.name,
       quantity: quantity,
       unit_price: medicine.price,
-      total_price: medicine.price * quantity
+      total_price: helo
     };
 
-    setData([...data, newEntry]);
-    
-    console.log(data);
+    setSubtotal(subtotal + helo)
+    setInvoice([...invoice, newEntry]);
   };
 
-  const handleAdd = ()=> {
-    var num = data.length + 1
+  const handleSave = async ()=> {
+    const { data, error } = await supabase
+    .from('sales')
+    .insert([
+      { 
+        customer_id: customer_id, 
+        total_amount: subtotal,
+        payment_mode: mode
+      },
+    ])
+    .select()
 
-    data.push({
-      id: num,
-      name: medicine,
-      quantity: quantity,
-      price: 9
-    })
+    console.log(customer_id)
+    const newData = data
     
-    setData(data);
+    if(data != []) {
+      for (let i = 0; i < invoice.length; i++) {
+        const { data, error } = await supabase
+        .from('sales_detail')
+        .insert([
+          { 
+            sales_id: newData[0].id,
+            medicine_id: invoice[i].id,
+            quantity: invoice[i].quantity,
+            unit_price: invoice[i].unit_price,
+            total_price: invoice[i].total_price
+          }
+        ])
+        .select()  
+        
+        console.log(invoice[i])
+      }
+    }   
+    
+    if(mode == 'momo') {
+      const { data, error } = await supabase
+      .from('creditTerms')
+      .insert([
+        { 
+          sales_id: newData[0].id, 
+          customers_id: customer_id,
+          current_balance: subtotal,
+          due_date: due_date,
+        },
+      ])
+      .select()
+
+
+          
+    }
   }
 
  
@@ -214,11 +264,11 @@ function Invoice() {
               <Grid item xs={12} md={4}>
                 <div className="mb-3">
                   <h6>Customer Name</h6>
-                  <select className="form-select" aria-label="Default select example">
+                  <select className="form-select" aria-label="Default select example" onChange={(e)=> setCustomer_id(e.target.value)}>
                     <option selected>-- Choose customer --</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                    {customers?.map((customer)=> 
+                      <option key={customer.id} value={customer.id}>{customer.name}</option>
+                    )}
                   </select>
                 </div>
               </Grid>
@@ -253,12 +303,12 @@ function Invoice() {
                 : 
                   <div className="mb-3">
                     <h6>Installment Duration</h6>
-                    <select className="form-select" aria-label="Default select example" >
+                    <select className="form-select" aria-label="Default select example" onChange={(e)=> setInstallment(e.target.value)}>
                       <option selected>-- Select Duration --</option>
-                      <option value="1">2 weeks</option>
-                      <option value="2">4 weeks</option>
-                      <option value="3">6 weeks</option>
-                      <option value="3">8 weeks</option>
+                      <option value="2">2 weeks</option>
+                      <option value="4">4 weeks</option>
+                      <option value="6">6 weeks</option>
+                      <option value="8">8 weeks</option>
                     </select>
                   </div> 
                 }
@@ -271,7 +321,7 @@ function Invoice() {
               :
                 <div className="mb-3">
                   <h6>Due Date</h6>
-                  <input type="date" className="form-control" id="due_date"/>
+                  <input type="date" className="form-control" id="due_date" onChange={(e)=> setDue_date(e.target.value)}/>
                 </div>
               } 
               </Grid>
@@ -318,12 +368,12 @@ function Invoice() {
                       {/* <th scope="col">#</th> */}
                       <th scope="col">Name</th>
                       <th scope="col">Quantity</th>
-                      <th scope="col">Unit Price</th>
-                      <th scope="col">Total Price</th>
+                      <th scope="col">Unit Price (Ghc)</th>
+                      <th scope="col">Total Price (Ghc)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data?.map((medicine)=> 
+                    {invoice?.map((medicine)=> 
                       <tr key={medicine.id}>
                         {/* <th scope="row">{medicine.id}</th> */}
                         <td>{medicine.name}</td>
@@ -333,8 +383,8 @@ function Invoice() {
                       </tr>
                     )}
                     <tr>
-                      <td colSpan="3" className="text-end">Total</td>
-                      <td className="text-end">{total}</td>
+                      <td colSpan="3" className="text-end">Total ==</td>
+                      <td className="bg-success">{subtotal}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -344,7 +394,7 @@ function Invoice() {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-success ">Print</button>
-              <button type="button" className="btn btn-primary">Save</button>
+              <button type="button" className="btn btn-primary" onClick={handleSave}>Save</button>
               <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
           </div>

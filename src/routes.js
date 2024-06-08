@@ -46,6 +46,7 @@ import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import Manufacturer from "layouts/manufacturer";
 import Report from "layouts/report";
+import Finance from "layouts/finance";
 import Customers from "layouts/customers";
 import Medicine from "layouts/medicine";
 import SignIn from "layouts/authentication/sign-in";
@@ -70,6 +71,22 @@ const routes = [
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/invoice",
     component: <Invoice />,
+  },
+  {
+    type: "collapse",
+    name: "Finance",
+    key: "finance",
+    icon: <Icon fontSize="small">money</Icon>, 
+    route: "/finance",
+    component: <Finance />,
+  },
+  {
+    type: "collapse",
+    name: "Reports",
+    key: "report",
+    icon: <Icon fontSize="small">summarize</Icon>, 
+    route: "/report",
+    component: <Report />,
   },
   {
     type: "collapse",
@@ -119,14 +136,6 @@ const routes = [
   //   route: "/manufacturers",
   //   component: <Manufacturer />,
   // },
-  {
-    type: "collapse",
-    name: "Reports",
-    key: "report",
-    icon: <Icon fontSize="small">summarize</Icon>, 
-    route: "/report",
-    component: <Report />,
-  },
   {
     // type: "collapse",
     // name: "Sign In",

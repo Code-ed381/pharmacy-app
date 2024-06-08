@@ -32,6 +32,10 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import { CardActionArea } from '@mui/material';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -160,93 +164,31 @@ function Customers() {
                     add customer
                   </MDButton>
                 </Grid>
-
-
+                
                 <MDBox p={2}>
-                  <Grid container spacing={6}>
+                  <Grid container spacing={1}>
                     {data?.map((customer)=> 
-                      <Grid key={customer.id} item xs={12} md={6} xl={3}>
-                        <DefaultProjectCard
-                          image={customer.image}
-                          label={customer.email}
-                          title={customer.name}
-                          description={customer.address}
-                          phone={customer.tel}
-                          action={{
-                            type: "internal",
-                            route: "/pages/profile/profile-overview",
-                            color: "info",
-                            label: "view more",
-                          }}
-                          authors={[
-                            { image: team1, name: "Elena Morison" },
-                            { image: team2, name: "Ryan Milly" },
-                            { image: team3, name: "Nick Daniel" },
-                            { image: team4, name: "Peterson" },
-                          ]}
-                        />
+                      <Grid key={customer.id} item xs={12} md={3} xl={2}>
+                        <Card sx={{ maxWidth: 345 }}>
+                          <CardActionArea>
+                            <CardMedia
+                              component="img"
+                              height="140"
+                              image={customer.image}
+                              alt={customer.name}
+                            />
+                            <CardContent>
+                              <Typography gutterBottom variant="h5" component="div">
+                                {customer.name}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {customer.address}
+                              </Typography>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
                       </Grid>
                     )}
-                    {/* <Grid item xs={12} md={6} xl={3}>
-                      <DefaultProjectCard
-                        image={homeDecor2}
-                        label="project #1"
-                        title="scandinavian"
-                        description="Music is something that everyone has their own specific opinion about."
-                        action={{
-                          type: "internal",
-                          route: "/pages/profile/profile-overview",
-                          color: "info",
-                          label: "view more",
-                        }}
-                        authors={[
-                          { image: team3, name: "Nick Daniel" },
-                          { image: team4, name: "Peterson" },
-                          { image: team1, name: "Elena Morison" },
-                          { image: team2, name: "Ryan Milly" },
-                        ]}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6} xl={3}>
-                      <DefaultProjectCard
-                        image={homeDecor3}
-                        label="project #3"
-                        title="minimalist"
-                        description="Different people have different taste, and various types of music."
-                        action={{
-                          type: "internal",
-                          route: "/pages/profile/profile-overview",
-                          color: "info",
-                          label: "view more",
-                        }}
-                        authors={[
-                          { image: team4, name: "Peterson" },
-                          { image: team3, name: "Nick Daniel" },
-                          { image: team2, name: "Ryan Milly" },
-                          { image: team1, name: "Elena Morison" },
-                        ]}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6} xl={3}>
-                      <DefaultProjectCard
-                        image={homeDecor4}
-                        label="project #4"
-                        title="gothic"
-                        description="Why would anyone pick blue over pink? Pink is obviously a better color."
-                        action={{
-                          type: "internal",
-                          route: "/pages/profile/profile-overview",
-                          color: "info",
-                          label: "view more",
-                        }}
-                        authors={[
-                          { image: team4, name: "Peterson" },
-                          { image: team3, name: "Nick Daniel" },
-                          { image: team2, name: "Ryan Milly" },
-                          { image: team1, name: "Elena Morison" },
-                        ]}
-                      />
-                    </Grid> */}
                   </Grid>
                 </MDBox>
 

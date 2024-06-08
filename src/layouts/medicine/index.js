@@ -30,6 +30,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import Stack from '@mui/material/Stack';
+
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import { Button, CardActionArea, CardActions } from '@mui/material';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -51,10 +57,44 @@ import TextField from '@mui/material/TextField';
 function Medicine() {
   const { columns, rows } = authorsTableData();
   const [name, setName] = useState('');
+  const [img, setImg] = useState('');
   const [description, setDescription] = useState('');
+  const [items, setItems] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [price, setPrice] = useState(0);
   const [expiry, setExpiry] = useState(new Date());
+
+  const styles = {
+    truncate: {
+      width: '200px', // Adjust the width as needed
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+  };
+
+  let isMounted = false
+  
+  useEffect(() => {
+    const controller = new AbortController();
+
+    if(!isMounted) {
+      isMounted = true
+      const getMedicine = async ()=> {
+        let { data: medicine, error } = await supabase
+        .from('medicine')
+        .select('*')
+                
+        setItems(medicine)
+      }
+
+      getMedicine();
+    }
+
+    return ()=> {
+      controller.abort();
+    }
+  }, [])
 
   const handleAddMedicine = async ()=> {
     const { data, error } = await supabase
@@ -66,6 +106,7 @@ function Medicine() {
         price: price,
         quantity: quantity,
         expiry_date: expiry, 
+        img: img
       },
     ])
     .select()
@@ -125,13 +166,35 @@ function Medicine() {
                   </MDButton>
                 </Grid>
 
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={true}
-                  entriesPerPage={true}
-                  showTotalEntries={true}
-                  
-                />  
+                <Grid container>
+                  {items?.map((item)=> 
+                    <Grid item md={3} xs={12} sx={{padding: 2}} key={item.id}>
+                      <Card sx={{ maxWidth: 345, minHeight: 300, maxHeight: 300 }}>
+                        <CardActionArea>
+                          <CardMedia
+                            component="img"
+                            height="140"
+                            image={item?.img}
+                            alt={item?.name}
+                          />
+                          <CardContent>
+                            <Typography gutterBottom variant="h5" component="div">
+                              {item?.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={styles.truncate}>
+                              {item?.description}
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                        <CardActions>
+                          <MDTypography variant="h4" color="success" mx={2}>
+                            122
+                          </MDTypography>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  )}
+                </Grid>
 
                 <div className="modal fade" id="add_medicine" tabIndex="-1" aria-labelledby="add_medicine" aria-hidden="true">
                   <div className="modal-dialog modal-dialog-centered">
@@ -174,8 +237,17 @@ function Medicine() {
                           <input 
                             type="date" 
                             className="form-control" 
-                            id="exampleFormControlInput1"
+                            id="expiry"
                             onChange={(e)=> {setExpiry(e.target.value)}}
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <h6>img</h6>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            id="image"
+                            onChange={(e)=> {setImg(e.target.value)}}
                           />
                         </div>
                         <div className="mb-3">
