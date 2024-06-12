@@ -104,9 +104,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
     >
-      <NotificationItem icon={<Icon>email</Icon>} title="Check new messages" />
-      <NotificationItem icon={<Icon>podcasts</Icon>} title="Manage Podcast sessions" />
-      <NotificationItem icon={<Icon>shopping_cart</Icon>} title="Payment successfully completed" />
+      <NotificationItem component="a" href="/profile" icon={<Icon>person</Icon>} title="Profile" />
+      <NotificationItem component="a" href="/authentication/sign-up" icon={<Icon>emoji_people</Icon>} title="Register Staff" />
+      <NotificationItem component="a" href="/authentication/sign-in" icon={<Icon>logout</Icon>} title="Sign Out" />
     </Menu>
   );
 
@@ -135,13 +135,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
         </MDBox>
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
-            <MDBox pr={1}>
+            {/* <MDBox pr={1}>
               <MDInput label="Search here" />
-            </MDBox>
+            </MDBox> */}
             <MDBox color={light ? "white" : "inherit"}>
               <Link to="/authentication/sign-in/basic">
                 <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
+                  <Icon sx={iconsStyle}>notifications</Icon>
                 </IconButton>
               </Link>
               <IconButton
@@ -174,7 +174,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 variant="contained"
                 onClick={handleOpenMenu}
               >
-                <Icon sx={iconsStyle}>notifications</Icon>
+                <Icon sx={iconsStyle}>account_circle</Icon>
               </IconButton>
               {renderMenu()}
             </MDBox>

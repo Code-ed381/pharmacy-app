@@ -13,30 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import React, {useState, useEffect} from 'react';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-
-import Paper from '@mui/material/Paper';
-import InputBase from '@mui/material/InputBase';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import MenuIcon from '@mui/icons-material/Menu';
-import DirectionsIcon from '@mui/icons-material/Directions';
-
-import DataTable from "examples/Tables/DataTable";
-import MDButton from "components/MDButton"; 
-
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Box from '@mui/material/Box';
-
 // @mui material components
 import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 
 // @mui icons
@@ -44,20 +22,9 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 
-import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
-import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-
-
-import authorsTableData from "layouts/employees/data/authorsTableData";
-import projectsTableData from "layouts/employees/data/projectsTableData";
-
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-
-// Dashboard components
-import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -73,8 +40,6 @@ import PlatformSettings from "layouts/profile/components/PlatformSettings";
 
 // Data
 import profilesListData from "layouts/profile/data/profilesListData";
-import reportsBarChartData from "../dashboard/data/reportsBarChartData";
-import reportsLineChartData from "../dashboard/data/reportsLineChartData";
 
 // Images
 import homeDecor1 from "assets/images/home-decor-1.jpg";
@@ -86,131 +51,65 @@ import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
-function Report() {
-  const { sales, tasks } = reportsLineChartData;
-  const [time, setTime] = useState('daily');
-
-  const { columns, rows } = authorsTableData();
-  const { columns: pColumns, rows: pRows } = projectsTableData();
-
-  const handleTime = (e)=> {
-    setTime(e.target.value)
-
-    console.log(e.target.value)
-  }
-
+function Overview() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox mt={5}/>
-
-        <Card>
-          <MDBox
-            mx={2}
-            mt={-3}
-            py={3}
-            px={2}
-            variant="gradient"
-            bgColor="info"
-            borderRadius="lg"
-            coloredShadow="info"
-          >
-            <MDTypography variant="h6" color="white">
-              Reports
-            </MDTypography>
-
-            <Grid container spacing={1} mt={2}>
-              <Grid item xs={12} md={6}>
-              <Paper
-                component="form"
-                sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
-              >
-                <InputBase
-                  sx={{ ml: 1, flex: 1 }}
-                  placeholder="Search Reports"
-                  inputProps={{ 'aria-label': 'search reports' }}
-                />
-                <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-                  <SearchIcon />
-                </IconButton>
-              </Paper>
-              </Grid>
-              <Grid item xs={12} md={3}>
-                {/* <MDButton variant="contained" color="warning" size="medium">
-                  search
-                </MDButton> */}
-              </Grid>
-            </Grid> 
-          </MDBox>
-          <MDBox pt={2} px={2} lineHeight={1.25}>
-            {/* <MDTypography variant="h6" fontWeight="medium">
-              Reports
-            </MDTypography> */}
-            <MDBox mb={2} mt={2}>
-            <FormControl>
-              {/* <FormLabel id="demo-row-radio-buttons-group-label">Gender</FormLabel> */}
-              <RadioGroup
-                row
-                aria-labelledby="radio buttons for reports timing"
-                name="row-radio-buttons-group"
-                value={time}
-                onChange={handleTime}
-              >
-                <FormControlLabel value="daily" control={<Radio />} label="Daily"/>
-                <FormControlLabel value="weekly" control={<Radio />} label="Weekly" />
-                <FormControlLabel value="monthly" control={<Radio />} label="Monthly" />
-                <FormControlLabel value="yearly" control={<Radio />} label="Yearly" />
-              </RadioGroup>
-            </FormControl>
-            </MDBox>
-          </MDBox>
-        </Card>
-
-        {time === 'daily' ? (
-          <Grid container spacing={1} mt={1}>
-            <Grid item xs={12} md={6} lg={8}>
-              <Projects />
+      <MDBox mb={2} />
+      <Header>
+        <MDBox mt={5} mb={3}>
+          <Grid container spacing={1}>
+            <Grid item xs={12} md={6} xl={4}>
+              <PlatformSettings />
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
+            <Grid item xs={12} md={6} xl={4} sx={{ display: "flex" }}>
+              <Divider orientation="vertical" sx={{ ml: -2, mr: 1 }} />
+              <ProfileInfoCard
+                title="profile information"
+                description="Hi, I’m Alec Thompson, Decisions: If you can’t decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality)."
+                info={{
+                  fullName: "Alec M. Thompson",
+                  mobile: "(44) 123 1234 123",
+                  email: "alecthompson@mail.com",
+                  location: "USA",
+                }}
+                social={[
+                  {
+                    link: "https://www.facebook.com/CreativeTim/",
+                    icon: <FacebookIcon />,
+                    color: "facebook",
+                  },
+                  {
+                    link: "https://twitter.com/creativetim",
+                    icon: <TwitterIcon />,
+                    color: "twitter",
+                  },
+                  {
+                    link: "https://www.instagram.com/creativetimofficial/",
+                    icon: <InstagramIcon />,
+                    color: "instagram",
+                  },
+                ]}
+                action={{ route: "", tooltip: "Edit Profile" }}
+                shadow={false}
+              />
+              <Divider orientation="vertical" sx={{ mx: 0 }} />
+            </Grid>
+            <Grid item xs={12} xl={4}>
+              <ProfilesList title="conversations" profiles={profilesListData} shadow={false} />
             </Grid>
           </Grid>
-        ) 
-        : 
-        time === 'monthly' ? (
-          <MDBox  mt={7}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={12} lg={12}>
-                <MDBox mb={3}>
-                  <ReportsLineChart
-                    color="dark"
-                    title="Whole Sale Customers"
-                    description="Monthly Sales Chart"
-                    date="just updated"
-                    chart={tasks}
-                  />
-                </MDBox>
-              </Grid>
-              {/* <Grid item xs={12} md={12} lg={12}>
-                <MDBox mb={3}>
-                  <ReportsLineChart
-                    color="success"
-                    title="Retail Customers"
-                    description="Monthly Sales Chart"
-                    date="updated 4 min ago"
-                    chart={sales}
-                  />
-                </MDBox>
-              </Grid> */}
-            </Grid>
+        </MDBox>
+        <MDBox pt={2} px={2} lineHeight={1.25}>
+          <MDTypography variant="h6" fontWeight="medium">
+            Projects
+          </MDTypography>
+          <MDBox mb={1}>
+            <MDTypography variant="button" color="text">
+              Architects design houses
+            </MDTypography>
           </MDBox>
-        )
-        :
-        ('')
-        }
-
-
-      {/* <Header>
+        </MDBox>
         <MDBox p={2}>
           <Grid container spacing={6}>
             <Grid item xs={12} md={6} xl={3}>
@@ -295,10 +194,10 @@ function Report() {
             </Grid>
           </Grid>
         </MDBox>
-      </Header> */}
-      {/* <Footer /> */}
+      </Header>
+      <Footer />
     </DashboardLayout>
   );
 }
 
-export default Report;
+export default Overview;

@@ -46,6 +46,7 @@ import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import Manufacturer from "layouts/manufacturer";
 import Report from "layouts/report";
+import Finance from "layouts/finance";
 import Customers from "layouts/customers";
 import Medicine from "layouts/medicine";
 import SignIn from "layouts/authentication/sign-in";
@@ -71,6 +72,22 @@ const routes = [
     route: "/invoice",
     component: <Invoice />,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Finance",
+  //   key: "finance",
+  //   icon: <Icon fontSize="small">money</Icon>, 
+  //   route: "/finance",
+  //   component: <Finance />,
+  // },
+  {
+    type: "collapse",
+    name: "Reports",
+    key: "report",
+    icon: <Icon fontSize="small">summarize</Icon>, 
+    route: "/report",
+    component: <Report />,
+  },
   {
     type: "collapse",
     name: "Medicine",
@@ -95,14 +112,14 @@ const routes = [
     route: "/employees",
     component: <Employees />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "RTL",
-  //   key: "rtl",
-  //   icon: <Icon fontSize="small">format_textdirection_r_to_l</Icon>,
-  //   route: "/rtl",
-  //   component: <RTL />,
-  // },
+  {
+    // type: "collapse",
+    // name: "RTL",
+    // key: "rtl",
+    // icon: <Icon fontSize="small">format_textdirection_r_to_l</Icon>,
+    route: "/profile",
+    component: <Profile />,
+  },
   // {
   //   type: "collapse",
   //   name: "Customer",
@@ -111,30 +128,22 @@ const routes = [
   //   route: "/customers",
   //   component: <Notifications />,
   // },
-  {
-    type: "collapse",
-    name: "Manufacturers",
-    key: "manufacturers",
-    icon: <Icon fontSize="small">factory</Icon>,
-    route: "/manufacturers",
-    component: <Manufacturer />,
-  },
-  {
-    type: "collapse",
-    name: "Reports",
-    key: "report",
-    icon: <Icon fontSize="small">summarize</Icon>, 
-    route: "/report",
-    component: <Report />,
-  },
   // {
   //   type: "collapse",
-  //   name: "Sign In",
-  //   key: "sign-in",
-  //   icon: <Icon fontSize="small">login</Icon>,
-  //   route: "/authentication/sign-in",
-  //   component: <SignIn />,
+  //   name: "Manufacturers",
+  //   key: "manufacturers",
+  //   icon: <Icon fontSize="small">factory</Icon>,
+  //   route: "/manufacturers",
+  //   component: <Manufacturer />,
   // },
+  {
+    // type: "collapse",
+    // name: "Sign In",
+    // key: "sign-in",
+    // icon: <Icon fontSize="small">login</Icon>,
+    route: "/authentication/sign-in",
+    component: <SignIn />,
+  },
   // {
   //   type: "collapse",
   //   name: "Sign Up",

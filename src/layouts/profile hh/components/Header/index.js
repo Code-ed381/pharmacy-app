@@ -66,7 +66,7 @@ function Header({ children }) {
 
   return (
     <MDBox position="relative" mb={5}>
-      <MDBox
+      {/* <MDBox
         display="flex"
         alignItems="center"
         position="relative"
@@ -82,17 +82,17 @@ function Header({ children }) {
           backgroundPosition: "50%",
           overflow: "hidden",
         }}
-      />
+      /> */}
       <Card
         sx={{
           position: "relative",
-          mt: -8,
+          mt: 2,
           mx: 3,
           py: 2,
           px: 2,
         }}
       >
-        <Grid container spacing={3} alignItems="center">
+        {/* <Grid container spacing={3} alignItems="center">
           <Grid item>
             <MDAvatar src={burceMars} alt="profile-image" size="xl" shadow="sm" />
           </Grid>
@@ -136,7 +136,7 @@ function Header({ children }) {
               </Tabs>
             </AppBar>
           </Grid>
-        </Grid>
+        </Grid> */}
         {children}
       </Card>
     </MDBox>
