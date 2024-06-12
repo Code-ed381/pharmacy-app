@@ -21,6 +21,8 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Grid from "@mui/material/Grid";
+import Avatar from '@mui/material/Avatar';
+import Stack from '@mui/material/Stack';
 
 // Material Icons
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -90,6 +92,9 @@ export default function data() {
 
   let isMounted = false
   
+  const [invoice, setInvoice] = useState([]);
+  const [medicines, setMedicines] = useState([]);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -110,10 +115,7 @@ export default function data() {
             *
           )
         `)
-
-        setData(sales_detail)
-
-        console.log(sales_detail)
+        setData(sales_detail)        
       }
 
       getMedicine();
@@ -125,6 +127,20 @@ export default function data() {
   }, [])
 
 
+  const handleView = async (item) => {
+    setInvoice(item)
+
+    let { data: sales_detail, error } = await supabase
+    .from('sales_detail')
+    .select(`*,
+      medicine(*)`
+    )
+    // Filters
+    .eq('sales_id', item?.sales_id)
+
+    setMedicines(sales_detail)
+    console.log(sales_detail)
+  }
         
 
   return {
@@ -174,7 +190,7 @@ export default function data() {
       action: (
         <>
           <MDBox>
-            <MDTypography className="btn btn-outline-primary btn-sm" variant="caption" color="text" fontWeight="medium" data-bs-toggle="modal" data-bs-target="#view" sx={{width: '70px'}}>
+            <MDTypography className="btn btn-outline-primary btn-sm" variant="caption" color="text" fontWeight="medium" onClick={()=> handleView(item)} data-bs-toggle="modal" data-bs-target="#view" sx={{width: '70px'}}>
               View
               <VisibilityIcon />
             </MDTypography>
@@ -192,89 +208,85 @@ export default function data() {
             </MDTypography>
           </MDBox> */}
   
-          <div className="modal fade" id="view"data-bs-toggle="modal"  data-bs-target="#view" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div className="modal-dialog modal-lg">
+          <div className="modal fade" id="view"data-bs-toggle="modal"  data-bs-target="#view" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h1 className="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                  <h1 className="modal-title fs-5" id="exampleModalLabel">Invoice</h1>
                   <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div className="modal-body">
+                <div className="modal-body text-start">
                   <Grid container spacing={1}>
-                    <Grid item xs={12} md={4}>
-                      <div className="mb-3">
-                        <label htmlFor="exampleFormControlInput1" className="form-label">Invoice Header Information</label>
-                        <h6>Invoice ID</h6>
-                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                            3000
-                          </MDTypography>
-                      </div>
-                      <div className="mb-3">
-                        <h6>Invoice Date</h6>
-                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                            3000
-                          </MDTypography>
-                      </div>
-                      <div className="mb-3">
-                        <h6>Due Date</h6>
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          3000
-                        </MDTypography>
-                      </div>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={5}>
                       <div className="mb-3">
                         <label htmlFor="exampleFormControlInput1" className="form-label">Customer Information</label>
-                        <h6>Company</h6>
-                        {/* <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="name@example.com"/> */}
+                        {/* <img src={invoice?.sales?.customers?.image} width='100' height="100" className="img-thumbnail" alt="customer image"/> */}
+                        
                         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          3000
+                          Name
                         </MDTypography>
-                      </div>
-                      <div className="mb-3">
-                        <h6>Customer Name</h6>
-                        {/* <input type="text" className="form-control" id="exampleFormControlInput1" /> */}
-  
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          3000
+
+                        <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
+                            {invoice?.sales?.customers?.name}
                         </MDTypography>
-                      </div>
-                      <div className="mb-3">
-                        <h6>Phone</h6>
+
                         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          3000
+                          Phone
+                        </MDTypography>
+
+                        <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
+                          {invoice?.sales?.customers?.tel}
+                        </MDTypography>
+
+                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                          Email
+                        </MDTypography>
+
+                        <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
+                          {invoice?.sales?.customers?.email}
                         </MDTypography>
                       </div>
                     </Grid>
+
+                    <Grid item xs={12} md={3}>
+                      <div className="mb-3">
+                        <label htmlFor="exampleFormControlInput1" className="form-label">Billing Information</label>
+                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                          Mode of Payment
+                        </MDTypography>
+                        <MDBadge badgeContent={invoice?.sales?.payment_mode} color={invoice?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
+                      </div>
+                      { invoice?.sales?.payment_mode === "momo" ? (
+                        <div className="mb-3">
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            Duration
+                          </MDTypography>
+                          <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
+                            Duration
+                          </MDTypography>
+                        </div>
+                      ) : (
+                        " "
+                      ) }
+                    </Grid>
+
                     <Grid item xs={12} md={4}>
                       <div className="mb-3">
                         <label htmlFor="exampleFormControlInput1" className="form-label">Billing Information</label>
-                        <h6>Mode of Payment</h6>
                         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          3000
+                          Mode of Payment
                         </MDTypography>
+                        <MDBadge badgeContent={invoice?.sales?.payment_mode} color={invoice?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
                       </div>
                       <div className="mb-3">
-                        <h6>Payment Option</h6>
                         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          3000
+                          Date
                         </MDTypography>
                       </div>
                     </Grid>
                   </Grid>
                   <hr/>
                   <label htmlFor="exampleFormControlInput1" className="form-label">Items Information</label>
-                  {/* <Grid container spacing={1}>
-                    <Grid item xs={12} md={6}>
-                      <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Medicine"/>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                      <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Quantity"/>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                      <button type="button" className="btn btn-primary">Add medicine</button>
-                    </Grid>
-                  </Grid> */}
                   <Grid container spacing={1}>
                     <Grid item xs={12} md={12}>
                       <table className="table table-sm table-striped table-bordered table-hover">
@@ -288,38 +300,27 @@ export default function data() {
                           </tr>
                         </thead>
                         <tbody>
+                          {medicines?.map((medicine)=> 
+                            <tr key={medicine.id}>
+                              <th scope="row">{medicine.id}</th>
+                              <td>{medicine.medicine.name}</td>
+                              <td>{medicine.quantity}</td>
+                              <td>{medicine.unit_price}</td>
+                              <td>{medicine.total_price.toLocaleString('en-US')}</td>
+                            </tr>
+                          )}
                           <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">3</th>
-                            <td>John</td>
-                            <td>Thornton</td>
-                            <td>@twitter</td>
-                          </tr>
-                          <tr>
-                            {/* <th scope="row">3</th> */}
-                            <td colSpan="4">Total</td>
-                            <td>@twitter</td>
+                            <td colSpan="4" className="text-end"><strong>Total</strong></td>
+                            <td><strong> {invoice?.sales?.total_amount.toLocaleString('en-US')}</strong></td>
                           </tr>
                         </tbody>
                       </table>
-                      <a href="#" style={{fontSize: "15px"}}>Clear table</a>
                     </Grid>
                   </Grid>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" className="btn btn-primary">Save changes</button>
+                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" style={{width: '100px'}}>Close</button>
+                  <button type="button" className="btn btn-primary" style={{width: '100px'}}>Print</button>
                 </div>
               </div>
             </div>

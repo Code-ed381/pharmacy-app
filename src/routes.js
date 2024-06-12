@@ -72,14 +72,14 @@ const routes = [
     route: "/invoice",
     component: <Invoice />,
   },
-  {
-    type: "collapse",
-    name: "Finance",
-    key: "finance",
-    icon: <Icon fontSize="small">money</Icon>, 
-    route: "/finance",
-    component: <Finance />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Finance",
+  //   key: "finance",
+  //   icon: <Icon fontSize="small">money</Icon>, 
+  //   route: "/finance",
+  //   component: <Finance />,
+  // },
   {
     type: "collapse",
     name: "Reports",

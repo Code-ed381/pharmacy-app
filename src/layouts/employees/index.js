@@ -13,6 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import { useEffect, useState } from "react";
+
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -29,6 +31,12 @@ import { CardActionArea } from '@mui/material';
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+
+// Supabase Client
+import { createClient } from '@supabase/supabase-js';
+const supabaseUrl = 'https://pedlcwbxzcjuzwdupgwk.supabase.co';
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlZGxjd2J4emNqdXp3ZHVwZ3drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM0MzEwNzQsImV4cCI6MjAyOTAwNzA3NH0.7GZC7LjXsoUgSHXLHDvblNPoC0y_v9UjDBYiAwLywAw";
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -48,6 +56,12 @@ function Employees() {
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
   const [data, setData] = useState([]);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+  const [salary, setSalary] = useState('');
+  const [img, setImg] = useState('');
 
   let isMounted = false
   
@@ -57,12 +71,12 @@ function Employees() {
       if(!isMounted) {
           isMounted = true
           const getStaff = async ()=> {
-            let { data: customers, error } = await supabase
-            .from('customers')
+            let { data: staff, error } = await supabase
+            .from('staff')
             .select('*')
                     
-            setData(customers)
-            console.log(customers)
+            setData(staff)
+            console.log(staff)
           }
           getStaff()
       }
@@ -72,86 +86,28 @@ function Employees() {
       }
   }, [])
 
+  const handleStaff = async ()=> {
+    const { data, error } = await supabase
+    .from('staff')
+    .insert([
+      { 
+        name: name, 
+        phone: phone,
+        email: email,
+        address: address,
+        salary: salary,
+        image: img
+      }
+    ])
+    .select()
+
+    console.log(data || error)
+  }
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
-        {/* <Grid container spacing={1}>
-          <MDBox mb={3} pt={3} px={2}>
-            <Grid container spacing={1}>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <MDButton variant="contained" color="info" size="medium">
-                  add invoice
-                </MDButton>
-              </Grid>
-            </Grid>
-          </MDBox>
-        </Grid> */}
-
-        {/* <MDBox mb={3} pt={3} px={2}>
-          <Grid container spacing={1}>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected>Companies</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected>Medicine</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected>Invoice ID</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <select className="form-select" aria-label="Default select example">
-                <option selected >Customer type</option>
-                <option value="1">Wholesale</option>
-                <option value="2">Retail</option>
-              </select>
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <MDButton variant="contained" color="info" size="medium">
-                search
-              </MDButton>
-            </Grid>
-          </Grid>
-        </MDBox> */}
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -195,64 +151,37 @@ function Employees() {
                   </MDButton>
                 </Grid>
 
-                <MDBox p={2}>
+                <MDBox>
                   <Grid container spacing={1}>
-                    {data?.map((customer)=> 
-                      <Grid key={customer.id} item xs={12} md={3} xl={2}>
+                    {data?.map((staff)=> 
+                      <Grid key={staff.id} item xs={12} md={3} xl={2}>
                         <Card sx={{ maxWidth: 345 }}>
-                          <CardActionArea>
+                          <CardActionArea data-bs-toggle="modal" data-bs-target="#staff" >
                             <CardMedia
                               component="img"
                               height="140"
-                              image={customer.image}
-                              alt={customer.name}
+                              image={staff.image}
+                              alt={staff.name}
                             />
                             <CardContent>
                               <Typography gutterBottom variant="h5" component="div">
-                                {customer.name}
+                                {staff.name}
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                {customer.address}
+                                {staff.address}
                               </Typography>
                             </CardContent>
                           </CardActionArea>
                         </Card>
+                        
                       </Grid>
                     )}
                   </Grid>
                 </MDBox>
 
-
               </MDBox>
             </Card>
           </Grid>
-          {/* <Grid item xs={12}>
-            <Card>
-              <MDBox
-                mx={2}
-                mt={-3}
-                py={3}
-                px={2}
-                variant="gradient"
-                bgColor="info"
-                borderRadius="lg"
-                coloredShadow="info"
-              >
-                <MDTypography variant="h6" color="white">
-                  Projects Table
-                </MDTypography>
-              </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={{ columns: pColumns, rows: pRows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
-            </Card>
-          </Grid> */}
         </Grid>
       </MDBox>
 
@@ -265,7 +194,7 @@ function Employees() {
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
-              {/* <div className="mb-3">
+              <div className="mb-3">
                 <h6>Full Name</h6>
                 <input 
                   type="text" 
@@ -280,7 +209,7 @@ function Employees() {
                 <input 
                   type="text" 
                   className="form-control" 
-                  id="exampleFormControlInput1"
+                  id="email"
                   onChange={(e)=> {setEmail(e.target.value)}}
                 />
               </div>
@@ -289,7 +218,7 @@ function Employees() {
                 <input 
                   type="number" 
                   className="form-control" 
-                  id="exampleFormControlInput1"
+                  id="phone"
                   onChange={(e)=> {setPhone(e.target.value)}}
                 />
               </div>
@@ -298,8 +227,17 @@ function Employees() {
                 <input 
                   type="text" 
                   className="form-control" 
-                  id="exampleFormControlInput1"
+                  id="address"
                   onChange={(e)=> {setAddress(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Salary</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="salary"
+                  onChange={(e)=> {setSalary(e.target.value)}}
                 />
               </div>
               <div className="mb-3">
@@ -307,19 +245,43 @@ function Employees() {
                 <input 
                   type="text" 
                   className="form-control" 
-                  id="exampleFormControlInput1"
-                  onChange={(e)=> {setImage(e.target.value)}}
+                  id="image"
+                  onChange={(e)=> {setImg(e.target.value)}}
                 />
-              </div> */}
+              </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-primary" >Save</button>
+              <button type="button" className="btn btn-primary" onClick={handleStaff}>Save</button>
               <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
         </div>
       </div>
-      {/* <Footer /> */}
+
+      <div className="modal fade" id="staff" tabIndex="-1" aria-labelledby="staff" aria-hidden="true">
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="staff">Modal title</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <Grid container spacing={1}>
+                <Grid item md={5} xs={12}>
+                  <img src={staff.image} className="img-thumbnail" alt="staff image"/>
+                </Grid>
+                <Grid item md={7} xs={12}>
+                  
+                </Grid>
+              </Grid>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" className="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

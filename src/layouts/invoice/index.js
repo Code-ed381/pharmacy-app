@@ -13,12 +13,16 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 import { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
 
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 
 // Supabase Client
 import { createClient } from '@supabase/supabase-js';
@@ -57,7 +61,7 @@ function Invoice() {
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
   
-  const [mode, setMode] = useState('');
+  const [mode, setMode] = useState('cash');
   const [installment, setInstallment] = useState('');
   const [due_date, setDue_date] = useState(new Date());
   const [medicine, setMedicine] = useState([]);
@@ -68,6 +72,12 @@ function Invoice() {
   const [total, setTotal] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
   const [invoice, setInvoice] = useState([]);
+  const [name, setName] = useState('');
+  const [image, setImage] = useState('');
+  const [type, setType] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
 
 
   let isMounted = false
@@ -140,6 +150,34 @@ function Invoice() {
     setInvoice([...invoice, newEntry]);
   };
 
+  const handleCustomer = async ()=> {
+    const { data, error } = await supabase
+    .from('customers')
+    .insert([
+      { 
+        name: name, 
+        tel: phone,
+        email: email,
+        address: address,
+        image: image
+      }
+    ])
+    .select()
+
+    console.log(error)
+    console.log(data)
+
+    const newCustomer = {
+      name: data[0].name,
+      tel: data[0].tel,
+      email: data[0].email,
+      image: data[0].image,
+      address: data[0].address
+    }
+
+    setCustomers([...customers, newCustomer])
+  }
+
   const handleSave = async ()=> {
     const { data, error } = await supabase
     .from('sales')
@@ -170,7 +208,7 @@ function Invoice() {
         ])
         .select()  
         
-        console.log(invoice[i])
+        console.log(data || error)
       }
     }   
     
@@ -186,9 +224,6 @@ function Invoice() {
         },
       ])
       .select()
-
-
-          
     }
   }
 
@@ -271,6 +306,9 @@ function Invoice() {
                     )}
                   </select>
                 </div>
+                <Button startIcon={<AddIcon />} data-bs-toggle="modal" data-bs-target="#newcustomer">
+                  new customer
+                </Button>
               </Grid>
               <Grid item xs={12} md={4}>
                 <div className="mb-3 mx-5">
@@ -280,6 +318,7 @@ function Invoice() {
                       aria-labelledby="demo-radio-buttons-group-label"
                       defaultValue="female"
                       name="radio-buttons-group"
+                      value={mode}
                       onChange={(e)=> setMode(e.target.value)}
                     >
                       <FormControlLabel value="cash" control={<Radio />} label="Cash" />
@@ -329,16 +368,6 @@ function Invoice() {
             <hr/>
             <Grid container spacing={1}>
               <Grid item xs={12} md={6}>
-                {/* <input 
-                  type="text" 
-                  className="form-control" 
-                  name="name"
-                  value={formData.name}
-                  id="exampleFormControlInput1" 
-                  placeholder="Enter medicine name"
-                  onChange={handleInputChange}
-                /> */}
-
                 <select className="form-select" aria-label="Disabled select example" onChange={handleInputChange}>
                   <option selected>-- Select medicine --</option>
                 {items?.map((item)=> 
@@ -375,31 +404,93 @@ function Invoice() {
                   <tbody>
                     {invoice?.map((medicine)=> 
                       <tr key={medicine.id}>
-                        {/* <th scope="row">{medicine.id}</th> */}
                         <td>{medicine.name}</td>
                         <td>{medicine.quantity}</td>
                         <td>{medicine.unit_price}</td>
-                        <td>{medicine.total_price}</td>
+                        <td>{medicine.total_price.toLocaleString('en-US')}</td>
                       </tr>
                     )}
                     <tr>
-                      <td colSpan="3" className="text-end">Total ==</td>
-                      <td className="bg-success">{subtotal}</td>
+                      <td colSpan="3" className="text-end"></td>
+                      <td className="bg-success text-white">{subtotal.toLocaleString('en-US')}</td>
                     </tr>
                   </tbody>
                 </table>
-                <a href="#" style={{fontSize: "15px"}}>Clear table</a>
+                <a href="#" style={{fontSize: "15px"}} onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</a>
               </Grid>
             </Grid>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-success ">Print</button>
-              <button type="button" className="btn btn-primary" onClick={handleSave}>Save</button>
-              <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              {mode === "cash" ? <button type="button" style={{width: 100}} className="btn btn-success ">Print</button> : <button type="button" style={{width: 100}} className="btn btn-primary" onClick={handleSave}>Save</button>}
+              <button style={{width: 100}} type="button" className="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
         </div>
       </div>
+
+      <div className="modal fade" id="newcustomer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">Add New Customer</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <h6>Full Name</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1" 
+                  placeholder="eg. John Doe"
+                  onChange={(e)=> {setName(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Email</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setEmail(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Phone Number</h6>
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setPhone(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Address</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setAddress(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Image URL</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  onChange={(e)=> {setImage(e.target.value)}}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={handleCustomer}>Add Customer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </DashboardLayout>
   );
 }

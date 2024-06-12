@@ -13,6 +13,13 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import React, {useState, useEffect} from 'react';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
@@ -81,9 +88,16 @@ import team4 from "assets/images/team-4.jpg";
 
 function Report() {
   const { sales, tasks } = reportsLineChartData;
+  const [time, setTime] = useState('daily');
 
   const { columns, rows } = authorsTableData();
   const { columns: pColumns, rows: pRows } = projectsTableData();
+
+  const handleTime = (e)=> {
+    setTime(e.target.value)
+
+    console.log(e.target.value)
+  }
 
   return (
     <DashboardLayout>
@@ -129,21 +143,31 @@ function Report() {
             </Grid> 
           </MDBox>
           <MDBox pt={2} px={2} lineHeight={1.25}>
-            <MDTypography variant="h6" fontWeight="medium">
+            {/* <MDTypography variant="h6" fontWeight="medium">
               Reports
-            </MDTypography>
-            <MDBox mb={1} mt={2}>
-              <div className="btn-group" role="group" aria-label="Basic example">
-                <button type="button" className="btn btn-primary active">Daily</button>
-                <button type="button" className="btn btn-primary">Weekly</button>
-                <button type="button" className="btn btn-primary">Monthly</button>
-                <button type="button" className="btn btn-primary">Yearly</button>
-              </div>
+            </MDTypography> */}
+            <MDBox mb={2} mt={2}>
+            <FormControl>
+              {/* <FormLabel id="demo-row-radio-buttons-group-label">Gender</FormLabel> */}
+              <RadioGroup
+                row
+                aria-labelledby="radio buttons for reports timing"
+                name="row-radio-buttons-group"
+                value={time}
+                onChange={handleTime}
+              >
+                <FormControlLabel value="daily" control={<Radio />} label="Daily"/>
+                <FormControlLabel value="weekly" control={<Radio />} label="Weekly" />
+                <FormControlLabel value="monthly" control={<Radio />} label="Monthly" />
+                <FormControlLabel value="yearly" control={<Radio />} label="Yearly" />
+              </RadioGroup>
+            </FormControl>
             </MDBox>
           </MDBox>
         </Card>
 
-        <Grid container spacing={2} mt={1}>
+        {time === 'daily' ? (
+          <Grid container spacing={1} mt={1}>
             <Grid item xs={12} md={6} lg={8}>
               <Projects />
             </Grid>
@@ -151,33 +175,42 @@ function Report() {
               <OrdersOverview />
             </Grid>
           </Grid>
-        <MDBox  mt={7}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={6}>
-              <MDBox mb={3}>
-                <ReportsLineChart
-                  color="dark"
-                  title="Whole Sale Customers"
-                  description="Monthly Sales Chart"
-                  date="just updated"
-                  chart={tasks}
-                />
-              </MDBox>
+        ) 
+        : 
+        time === 'monthly' ? (
+          <MDBox  mt={7}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={12} lg={12}>
+                <MDBox mb={3}>
+                  <ReportsLineChart
+                    color="dark"
+                    title="Whole Sale Customers"
+                    description="Monthly Sales Chart"
+                    date="just updated"
+                    chart={tasks}
+                  />
+                </MDBox>
+              </Grid>
+              {/* <Grid item xs={12} md={12} lg={12}>
+                <MDBox mb={3}>
+                  <ReportsLineChart
+                    color="success"
+                    title="Retail Customers"
+                    description="Monthly Sales Chart"
+                    date="updated 4 min ago"
+                    chart={sales}
+                  />
+                </MDBox>
+              </Grid> */}
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
-              <MDBox mb={3}>
-                <ReportsLineChart
-                  color="success"
-                  title="Retail Customers"
-                  description="Monthly Sales Chart"
-                  date="updated 4 min ago"
-                  chart={sales}
-                />
-              </MDBox>
-            </Grid>
-          </Grid>
-        </MDBox>
-      <Header>
+          </MDBox>
+        )
+        :
+        ('')
+        }
+
+
+      {/* <Header>
         <MDBox p={2}>
           <Grid container spacing={6}>
             <Grid item xs={12} md={6} xl={3}>
@@ -262,7 +295,7 @@ function Report() {
             </Grid>
           </Grid>
         </MDBox>
-      </Header>
+      </Header> */}
       {/* <Footer /> */}
     </DashboardLayout>
   );
