@@ -63,6 +63,13 @@ function Employees() {
   const [salary, setSalary] = useState('');
   const [img, setImg] = useState('');
 
+  function formatNumber(num) {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num.toString();
+  }
+
   let isMounted = false
   
   useEffect(() => {
@@ -268,7 +275,7 @@ function Employees() {
             <div className="modal-body">
               <Grid container spacing={1}>
                 <Grid item md={5} xs={12}>
-                  <img src={staff.image} className="img-thumbnail" alt="staff image"/>
+                  <img src={data.image} className="img-thumbnail" alt="staff image"/>
                 </Grid>
                 <Grid item md={7} xs={12}>
                   

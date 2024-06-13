@@ -20,6 +20,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
@@ -71,6 +72,7 @@ function Invoice() {
   const [quantity, setQuantity] = useState(1);
   const [total, setTotal] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
+  const [paid, setPaid] = useState(0);
   const [invoice, setInvoice] = useState([]);
   const [name, setName] = useState('');
   const [image, setImage] = useState('');
@@ -185,7 +187,9 @@ function Invoice() {
       { 
         customer_id: customer_id, 
         total_amount: subtotal,
-        payment_mode: mode
+        payment_mode: mode,
+        paid: paid,
+        installment: installment
       },
     ])
     .select()
@@ -351,18 +355,6 @@ function Invoice() {
                     </select>
                   </div> 
                 }
-
-              {mode === 'cash' ? 
-                <div className="mb-3">
-                  <h6>Due Date</h6>
-                  <input type="date" className="form-control" id="due_date" disabled/>
-                </div>
-              :
-                <div className="mb-3">
-                  <h6>Due Date</h6>
-                  <input type="date" className="form-control" id="due_date" onChange={(e)=> setDue_date(e.target.value)}/>
-                </div>
-              } 
               </Grid>
             </Grid>
             <hr/>
@@ -386,7 +378,9 @@ function Invoice() {
                 />
               </Grid>
               <Grid item xs={12} md={2}>
-                <button type="button" className="btn btn-primary" onClick={handleFormSubmit}>Add medicine</button>
+                <Button variant="text" startIcon={<AddIcon />} onClick={handleFormSubmit}>
+                  Add medicine
+                </Button>
               </Grid>
             </Grid>
             <Grid container spacing={1} mt={3}>
@@ -411,18 +405,32 @@ function Invoice() {
                       </tr>
                     )}
                     <tr>
-                      <td colSpan="3" className="text-end"></td>
-                      <td className="bg-success text-white">{subtotal.toLocaleString('en-US')}</td>
+                      <td colSpan="3" className="text-end" style={{ fontWeight: "bolder"}}>Total</td>
+                      <td style={{ fontWeight: "bolder"}}>{subtotal.toLocaleString('en-US')}</td>
                     </tr>
                   </tbody>
                 </table>
-                <a href="#" style={{fontSize: "15px"}} onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</a>
+
+                <div className="input-group input-group-default float-right">
+                  <span className="input-group-text" id="inputGroup-sizing-sm">{ mode === 'cash' ? "Payment" : "Initial Payment"}</span>
+                  <input type="number" className="form-control" aria-label="Sizing example input" onChange={(e)=> setPaid(e.target.value)} aria-describedby="inputGroup-sizing-sm" />
+                </div>
+
+                <Grid container spacing={1}>
+                  <Grid item xs={12} md={8}>
+                    <a href="#" style={{fontSize: "15px"}} onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</a>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <div className="form-floating mb-3">
+                    </div>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
             </div>
             <div className="modal-footer">
-              {mode === "cash" ? <button type="button" style={{width: 100}} className="btn btn-success ">Print</button> : <button type="button" style={{width: 100}} className="btn btn-primary" onClick={handleSave}>Save</button>}
-              <button style={{width: 100}} type="button" className="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              {mode === "cash" ? <Button variant="contained" style={{width: 100}} className="btn btn-primary ">Print</Button> : <button type="button" style={{width: 100}} className="btn btn-warning" onClick={handleSave}>Save</button>}
+              <button style={{width: 100}} type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
         </div>
