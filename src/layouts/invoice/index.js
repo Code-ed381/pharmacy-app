@@ -21,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import ClearIcon from '@mui/icons-material/Clear';
+import PrintIcon from '@mui/icons-material/Print';
 
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
@@ -40,6 +41,7 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import Typography from '@mui/material/Typography';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -93,8 +95,18 @@ function Invoice() {
         let { data: medicine, error } = await supabase
         .from('medicine')
         .select('*')
-                
-        setItems(medicine)
+        
+        if (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Failed to load sales!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } else {
+          setItems(medicine)
+        }
       }
 
       const getCustomers = async ()=> {
@@ -102,7 +114,17 @@ function Invoice() {
         .from('customers')
         .select('*')
           
-        setCustomers(customers)
+        if (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Failed to load customers!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } else {
+          setCustomers(customers)
+        }
       }
 
       getCustomers();
@@ -166,18 +188,39 @@ function Invoice() {
     ])
     .select()
 
-    console.log(error)
-    console.log(data)
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Add Customer Failed!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      const newCustomer = {
+        name: data[0].name,
+        tel: data[0].tel,
+        email: data[0].email,
+        image: data[0].image,
+        address: data[0].address
+      }
+  
+      setCustomers([...customers, newCustomer])
 
-    const newCustomer = {
-      name: data[0].name,
-      tel: data[0].tel,
-      email: data[0].email,
-      image: data[0].image,
-      address: data[0].address
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Customer added",
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+      setName('');
+      setEmail('');
+      setPhone('');
+      setAddress('');
+      setImage('');
     }
-
-    setCustomers([...customers, newCustomer])
   }
 
   const handleSave = async ()=> {
@@ -194,7 +237,9 @@ function Invoice() {
     ])
     .select()
 
-    console.log(customer_id)
+    console.log(data)
+    console.log(customer_id, subtotal, paid, mode, installment)
+
     const newData = data
     
     if(data != []) {
@@ -230,6 +275,8 @@ function Invoice() {
       .select()
     }
   }
+
+
 
  
   return (
@@ -274,25 +321,31 @@ function Invoice() {
 
               <MDBox >
                 <Grid container spacing={1} mx={2} my={2}>
-                  <MDButton variant="contained" color="secondary" size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  <Button startIcon={<AddIcon />} variant="text"  size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     create invoice
-                  </MDButton>
+                  </Button>
                 </Grid>
 
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={true}
-                  entriesPerPage={true}
-                  showTotalEntries={true}
-                  
-                />  
+                { items != [] || items != null ? (
+                  <DataTable
+                    table={{ columns, rows }}
+                    isSorted={true}
+                    entriesPerPage={true}
+                    showTotalEntries={true}
+                  />  
+                ) : (
+                  <Typography variant="body2">No data</Typography>
+                ) }
+
               </MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
+
+      {/* Invoice Modal */}
       <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{maxHeight: "700px", marginTop: "100px"}}>
-        <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">Invoice</h1>
@@ -385,7 +438,7 @@ function Invoice() {
             </Grid>
             <Grid container spacing={1} mt={3}>
               <Grid item xs={12} md={12}>
-                <table className="table table-sm table-striped table-bordered table-hover">
+                <table className="table table-sm table-striped table-bordered table-hover" style={{ fontSize: 15}}>
                   <thead>
                     <tr>
                       {/* <th scope="col">#</th> */}
@@ -411,31 +464,23 @@ function Invoice() {
                   </tbody>
                 </table>
 
-                <div className="input-group input-group-default float-right">
-                  <span className="input-group-text" id="inputGroup-sizing-sm">{ mode === 'cash' ? "Payment" : "Initial Payment"}</span>
-                  <input type="number" className="form-control" aria-label="Sizing example input" onChange={(e)=> setPaid(e.target.value)} aria-describedby="inputGroup-sizing-sm" />
-                </div>
 
-                <Grid container spacing={1}>
-                  <Grid item xs={12} md={8}>
-                    <a href="#" style={{fontSize: "15px"}} onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</a>
+                <Grid container spacing={1} mt={4}>
+                  <Grid item xs={12} md={6}>
                   </Grid>
-                  <Grid item xs={12} md={4}>
-                    <div className="form-floating mb-3">
-                    </div>
+                  <Grid item xs={12} md={6} className="text-end">
+                    <Button variant="text" startIcon={<ClearIcon />} color="primary" onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</Button>
+                    <Button variant="text" startIcon={<PrintIcon />} color="primary" onClick={handleSave}>Print Receipt</Button>
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
             </div>
-            <div className="modal-footer">
-              {mode === "cash" ? <Button variant="contained" style={{width: 100}} className="btn btn-primary ">Print</Button> : <button type="button" style={{width: 100}} className="btn btn-warning" onClick={handleSave}>Save</button>}
-              <button style={{width: 100}} type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
           </div>
         </div>
       </div>
 
+      {/* Add Customer Modal */}
       <div className="modal fade" id="newcustomer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -450,6 +495,7 @@ function Invoice() {
                   type="text" 
                   className="form-control" 
                   id="exampleFormControlInput1" 
+                  value={name}
                   placeholder="eg. John Doe"
                   onChange={(e)=> {setName(e.target.value)}}
                 />
@@ -460,6 +506,7 @@ function Invoice() {
                   type="text" 
                   className="form-control" 
                   id="exampleFormControlInput1"
+                  value={email}
                   onChange={(e)=> {setEmail(e.target.value)}}
                 />
               </div>
@@ -468,6 +515,7 @@ function Invoice() {
                 <input 
                   type="number" 
                   className="form-control" 
+                  value={phone}
                   id="exampleFormControlInput1"
                   onChange={(e)=> {setPhone(e.target.value)}}
                 />
@@ -477,6 +525,7 @@ function Invoice() {
                 <input 
                   type="text" 
                   className="form-control" 
+                  value={address}
                   id="exampleFormControlInput1"
                   onChange={(e)=> {setAddress(e.target.value)}}
                 />
@@ -486,19 +535,19 @@ function Invoice() {
                 <input 
                   type="text" 
                   className="form-control" 
+                  value={image}
                   id="exampleFormControlInput1"
                   onChange={(e)=> {setImage(e.target.value)}}
                 />
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={handleCustomer}>Add Customer</button>
+              {/* <Button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button> */}
+              <Button variant="text" startIcon={<AddIcon />} color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={handleCustomer}>Add Customer</Button>
             </div>
           </div>
         </div>
       </div>
-      
     </DashboardLayout>
   );
 }

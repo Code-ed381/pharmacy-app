@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+import Swal from 'sweetalert2';
 
 // Material UI
 import Box from '@mui/material/Box';
@@ -90,7 +91,6 @@ export default function data() {
     return futureDate;
   }
 
-  
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -185,6 +185,41 @@ export default function data() {
     setMedicines(sales_detail)
     console.log(item)
   }
+
+  const handleDelete = async (invoice)=> {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const { error } = await supabase
+          .from('sales')
+          .delete()
+          .eq('id', invoice) 
+    
+        console.log(error)
+
+        if (error === null )
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+        }
+        else {
+          Swal.fire({
+            title: "Delete failed!",
+            text: "Your file could not deleted.",
+            icon: "error"
+          });
+      }
+    });
+  }
         
 
   return {
@@ -245,13 +280,8 @@ export default function data() {
             <PrintIcon />
             </MDTypography>
           </MDBox>
-          {/* <MDBox>
-            <MDTypography className="btn btn-outline-secondary btn-sm" variant="caption" color="text" fontWeight="medium" sx={{width: '70px'}}>
-              Edit
-             <EditIcon />
-            </MDTypography>
-          </MDBox> */}
   
+          {/* Modal for view invoice */}
           <div className="modal fade" id="view"data-bs-toggle="modal"  data-bs-target="#view" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
               <div className="modal-content">
@@ -261,31 +291,33 @@ export default function data() {
                 </div>
                 <div className="modal-body text-start">
                   <Grid container spacing={1}>
-                    <Grid item xs={12} md={5}>
+                    <Grid item xs={12} md={6}>
                       <div className="mb-3">
                         <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
                           Customer Information
                         </MDTypography>
-                        {/* <label htmlFor="exampleFormControlInput1" className="form-label">Customer Information</label> */}
-                        {/* <img src={invoice?.sales?.customers?.image} width='100' height="100" className="img-thumbnail" alt="customer image"/> */}
-                        
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Name
-                        </MDTypography>
 
-                        <label className="form-label">{invoice?.customers?.name}</label>
+                        <Grid container spacing={1}>
+                          <Grid item xs={12} md={5}>
+                            <img src={invoice?.customers?.image} className="img-thumbnail" alt="customer image"/>
+                          </Grid>
+                          <Grid item xs={12} md={5}>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              Name
+                            </MDTypography>
+                            <label className="form-label">{invoice?.customers?.name}</label>
 
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Phone
-                        </MDTypography>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              Phone
+                            </MDTypography>
+                            <label className="form-label">{invoice?.customers?.tel}</label>
 
-                        <label className="form-label">{invoice?.customers?.tel}</label>
-
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Email
-                        </MDTypography>
-
-                        <label className="form-label">{invoice?.customers?.email}</label>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              Email
+                            </MDTypography>
+                            <label className="form-label">{invoice?.customers?.email}</label>
+                          </Grid>
+                        </Grid>
                       </div>
                     </Grid>
 
@@ -316,7 +348,7 @@ export default function data() {
                       ) }
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={3}>
                       <div className="mb-3">
                         <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
                           Invoice Information
@@ -362,11 +394,11 @@ export default function data() {
                         </tbody>
                       </table>
                       <div className="text-end">
-                        <Button variant="text" startIcon={<DeleteIcon />}>
+                        <Button variant="text" startIcon={<DeleteIcon />} onClick={()=> handleDelete(invoice?.id)}>
                           Delete invoice
                         </Button>
                         <Button variant="text" startIcon={<LocalPrintshopIcon />}>
-                          Print
+                          Print Invoice
                         </Button>
                       </div>
                     </Grid>
@@ -375,8 +407,6 @@ export default function data() {
               </div>
             </div>
           </div>
-  
-  
         </>
       ),
     }))     
