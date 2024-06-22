@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+import Swal from 'sweetalert2';
 
 // Material UI
 import Box from '@mui/material/Box';
@@ -28,6 +29,8 @@ import Stack from '@mui/material/Stack';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import PrintIcon from '@mui/icons-material/Print';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 
 import { useEffect, useState } from "react";
 
@@ -49,8 +52,7 @@ import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
 export default function data() {
-  const [data, setData] = useState([]);
-
+  
   const dateChange = (timestamp)=> {
   
     // Parse the timestamp into a Date object
@@ -60,14 +62,34 @@ export default function data() {
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
     const day = String(date.getUTCDate()).padStart(2, '0');
-  
-    // Format the date as YYYY-MM-DD
-    const formattedDate = `${day}-${month}-${year}`;
-  
-    return formattedDate; // Output: "2024-05-26"
 
+    // Format the future date with options for day, month, year, and weekday
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    let formattedDate = date.toLocaleDateString('en-US', options);
+    
+    // Format the date as YYYY-MM-DD
+    // const formattedDate = `${day}-${month}-${year}`;
+    
+    return formattedDate; // Output: "2024-05-26"
+    
   }
 
+  function calculateInstallmentDate(purchaseDate, weeks) {
+    // Convert the purchase date to a Date object
+    let date = new Date(purchaseDate);
+    
+    // Calculate the number of days to add (weeks * 7)
+    let daysToAdd = weeks * 7;
+  
+    // Add the days to the date
+    date.setDate(date.getDate() + daysToAdd);
+
+    // Format the future date with options for day, month, year, and weekday
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    let futureDate = date.toLocaleDateString('en-US', options);
+
+    return futureDate;
+  }
 
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -80,7 +102,7 @@ export default function data() {
       </MDBox>
     </MDBox>
   );
-
+  
   const Job = ({ title, description }) => (
     <MDBox lineHeight={1} textAlign="left">
       <MDTypography display="block" variant="caption" color="text" fontWeight="medium" fontSize="15px">
@@ -89,36 +111,51 @@ export default function data() {
       <MDTypography variant="caption">{description}</MDTypography>
     </MDBox>
   );
-
+  
   let isMounted = false
   
   const [invoice, setInvoice] = useState([]);
   const [medicines, setMedicines] = useState([]);
+  const [data, setData] = useState([]);
+  const [sales, setSales] = useState([]);
+  
+  const getSalesDetail = async ()=> {
+    let { data: sales_detail, error } = await supabase
+    .from('sales_detail')
+    .select(`
+      *,
+      sales (
+        *,
+        customers(
+          *
+        )
+      ),
+      medicine (
+        *
+      )
+    `)
+    setData(sales_detail)        
+  }
+
+  const getSales = async ()=> {
+    let { data: sales, error } = await supabase
+    .from('sales')
+    .select(`
+      *,
+      customers(*)
+    `)
+
+    setSales(sales)
+  }
 
   useEffect(() => {
     const controller = new AbortController();
 
     if(!isMounted) {
       isMounted = true
-      const getMedicine = async ()=> {
-        let { data: sales_detail, error } = await supabase
-        .from('sales_detail')
-        .select(`
-          *,
-          sales (
-            *,
-            customers(
-              *
-            )
-          ),
-          medicine (
-            *
-          )
-        `)
-        setData(sales_detail)        
-      }
 
-      getMedicine();
+      getSalesDetail();
+      getSales();
     };
 
     return ()=> {
@@ -126,21 +163,63 @@ export default function data() {
     }
   }, [])
 
-
   const handleView = async (item) => {
     setInvoice(item)
 
     let { data: sales_detail, error } = await supabase
     .from('sales_detail')
-    .select(`*,
-      medicine(*)`
-    )
+    .select(`
+      *,
+      sales (
+        *,
+        customers(
+          *
+        )
+      ),
+      medicine (
+        *
+      )
+    `)
     // Filters
-    .eq('sales_id', item?.sales_id)
+    .eq('sales_id', item?.id)
 
     setMedicines(sales_detail)
-    console.log(sales_detail)
+    console.log(item)
   }
+
+  const handleDelete = async (invoice) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {  // Make this function async
+      if (result.isConfirmed) {
+        const { error } = await supabase
+          .from('sales')
+          .delete()
+          .eq('id', invoice);
+  
+        if (error) {
+          Swal.fire({
+            title: "Error!",
+            text: `There was an error deleting the invoice: ${error.message}`,
+            icon: "error"
+          });
+        } else {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Invoice has been deleted.",
+            icon: "success"
+          });
+          getSalesDetail();
+        }
+      }
+    });
+  };
         
 
   return {
@@ -155,8 +234,8 @@ export default function data() {
       { Header: "action", accessor: "action", align: "center" },
     ],
 
-    rows: data?.map(item => ({ 
-      author: <Author image={item?.sales?.customers?.image} name={item?.sales?.customers?.name} email={item?.sales?.customers?.email} />,
+    rows: sales?.map(item => ({ 
+      author: <Author image={item?.customers?.image} name={item?.customers?.name} email={item?.customers?.email} />,
       medicine: (
         <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
          {item?.id}
@@ -164,7 +243,7 @@ export default function data() {
       ),
       status: (
         <MDBox ml={-1}>
-          <MDBadge badgeContent={item?.sales?.payment_mode} color={item?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
+          <MDBadge badgeContent={item?.payment_mode} color={item?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
         </MDBox>
       ),
       employed: (
@@ -174,17 +253,17 @@ export default function data() {
       ),
       amount: (
         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-          {item?.sales?.total_amount}
+          {item?.total_amount.toLocaleString('en-US')}
         </MDTypography>
       ),
       paid: (
         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-          {item?.sales?.paid}
+          {item?.paid.toLocaleString('en-US')}
         </MDTypography>
       ),
       balance: (
         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-          {item?.sales?.total_amount - item?.sales?.paid}
+          {(item?.total_amount - item?.paid).toLocaleString('en-US')}
         </MDTypography>
       ),
       action: (
@@ -201,13 +280,8 @@ export default function data() {
             <PrintIcon />
             </MDTypography>
           </MDBox>
-          {/* <MDBox>
-            <MDTypography className="btn btn-outline-secondary btn-sm" variant="caption" color="text" fontWeight="medium" sx={{width: '70px'}}>
-              Edit
-             <EditIcon />
-            </MDTypography>
-          </MDBox> */}
   
+          {/* Modal for view invoice */}
           <div className="modal fade" id="view"data-bs-toggle="modal"  data-bs-target="#view" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
               <div className="modal-content">
@@ -217,76 +291,80 @@ export default function data() {
                 </div>
                 <div className="modal-body text-start">
                   <Grid container spacing={1}>
-                    <Grid item xs={12} md={5}>
+                    <Grid item xs={12} md={6}>
                       <div className="mb-3">
-                        <label htmlFor="exampleFormControlInput1" className="form-label">Customer Information</label>
-                        {/* <img src={invoice?.sales?.customers?.image} width='100' height="100" className="img-thumbnail" alt="customer image"/> */}
-                        
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Name
-                        </MDTypography>
-
                         <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
-                            {invoice?.sales?.customers?.name}
+                          Customer Information
                         </MDTypography>
 
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Phone
-                        </MDTypography>
+                        <Grid container spacing={1}>
+                          <Grid item xs={12} md={5}>
+                            <img src={invoice?.customers?.image} className="img-thumbnail" alt="customer image"/>
+                          </Grid>
+                          <Grid item xs={12} md={5}>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              Name
+                            </MDTypography>
+                            <label className="form-label">{invoice?.customers?.name}</label>
 
-                        <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
-                          {invoice?.sales?.customers?.tel}
-                        </MDTypography>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              Phone
+                            </MDTypography>
+                            <label className="form-label">{invoice?.customers?.tel}</label>
 
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Email
-                        </MDTypography>
-
-                        <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
-                          {invoice?.sales?.customers?.email}
-                        </MDTypography>
+                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                              Email
+                            </MDTypography>
+                            <label className="form-label">{invoice?.customers?.email}</label>
+                          </Grid>
+                        </Grid>
                       </div>
                     </Grid>
 
                     <Grid item xs={12} md={3}>
+                      <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
+                        Billing Information
+                      </MDTypography>
                       <div className="mb-3">
-                        <label htmlFor="exampleFormControlInput1" className="form-label">Billing Information</label>
                         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
                           Mode of Payment
                         </MDTypography>
-                        <MDBadge badgeContent={invoice?.sales?.payment_mode} color={invoice?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
+                        <MDBadge badgeContent={invoice?.payment_mode} color={invoice?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
                       </div>
-                      { invoice?.sales?.payment_mode === "momo" ? (
+                      { invoice?.payment_mode === "momo" ? (
                         <div className="mb-3">
                           <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                            Duration
+                            Installment Duration 
                           </MDTypography>
-                          <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
-                            Duration
+                          <label className="form-label">{invoice?.installment} weeks</label>
+
+                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            Due Date
                           </MDTypography>
+                          <label className="form-label">{calculateInstallmentDate(invoice?.created_at, invoice?.installment)}</label>
                         </div>
                       ) : (
                         " "
                       ) }
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={3}>
                       <div className="mb-3">
-                        <label htmlFor="exampleFormControlInput1" className="form-label">Billing Information</label>
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                          Mode of Payment
+                        <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
+                          Invoice Information
                         </MDTypography>
-                        <MDBadge badgeContent={invoice?.sales?.payment_mode} color={invoice?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
-                      </div>
-                      <div className="mb-3">
                         <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
                           Date
                         </MDTypography>
+                        <label htmlFor="exampleFormControlInput1" className="form-label">{dateChange(invoice?.created_at)}</label>
+                        <MDBadge badgeContent={invoice?.sales?.payment_mode} color={invoice?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
                       </div>
                     </Grid>
                   </Grid>
                   <hr/>
-                  <label htmlFor="exampleFormControlInput1" className="form-label">Items Information</label>
+                  <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
+                    Items
+                  </MDTypography>
                   <Grid container spacing={1}>
                     <Grid item xs={12} md={12}>
                       <table className="table table-sm table-striped table-bordered table-hover">
@@ -295,8 +373,8 @@ export default function data() {
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Quantity</th>
-                            <th scope="col">Unit Price</th>
-                            <th scope="col">Total Price</th>
+                            <th scope="col">Unit Price (Ghc)</th>
+                            <th scope="col">Total Price (Ghc)</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -306,27 +384,29 @@ export default function data() {
                               <td>{medicine.medicine.name}</td>
                               <td>{medicine.quantity}</td>
                               <td>{medicine.unit_price}</td>
-                              <td>{medicine.total_price.toLocaleString('en-US')}</td>
+                              <td>{medicine.total_price}</td>
                             </tr>
                           )}
                           <tr>
                             <td colSpan="4" className="text-end"><strong>Total</strong></td>
-                            <td><strong> {invoice?.sales?.total_amount.toLocaleString('en-US')}</strong></td>
+                            <td><strong> {(invoice?.total_amount)}</strong></td>
                           </tr>
                         </tbody>
                       </table>
+                      <div className="text-end">
+                        <Button variant="text" startIcon={<DeleteIcon />} onClick={()=> handleDelete(invoice?.id)}>
+                          Delete invoice
+                        </Button>
+                        <Button variant="text" startIcon={<LocalPrintshopIcon />}>
+                          Print Invoice
+                        </Button>
+                      </div>
                     </Grid>
                   </Grid>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" style={{width: '100px'}}>Close</button>
-                  <button type="button" className="btn btn-primary" style={{width: '100px'}}>Print</button>
                 </div>
               </div>
             </div>
           </div>
-  
-  
         </>
       ),
     }))     

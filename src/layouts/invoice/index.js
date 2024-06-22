@@ -21,6 +21,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 
+// Material Icons
+import DownloadIcon from '@mui/icons-material/Download';
+import ClearIcon from '@mui/icons-material/Clear';
+import PrintIcon from '@mui/icons-material/Print';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -39,6 +43,7 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import Typography from '@mui/material/Typography';
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -62,7 +67,7 @@ function Invoice() {
   const { columns: pColumns, rows: pRows } = projectsTableData();
   
   const [mode, setMode] = useState('cash');
-  const [installment, setInstallment] = useState('');
+  const [installment, setInstallment] = useState(0);
   const [due_date, setDue_date] = useState(new Date());
   const [medicine, setMedicine] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -71,6 +76,7 @@ function Invoice() {
   const [quantity, setQuantity] = useState(1);
   const [total, setTotal] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
+  const [paid, setPaid] = useState(0);
   const [invoice, setInvoice] = useState([]);
   const [name, setName] = useState('');
   const [image, setImage] = useState('');
@@ -80,6 +86,42 @@ function Invoice() {
   const [address, setAddress] = useState('');
 
 
+  const getMedicine = async ()=> {
+    let { data: medicine, error } = await supabase
+    .from('medicine')
+    .select('*')
+    
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to load sales!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      setItems(medicine)
+    }
+  }
+
+  const getCustomers = async ()=> {
+    let { data: customers, error } = await supabase
+    .from('customers')
+    .select('*')
+      
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to load customers!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      setCustomers(customers)
+    }
+  }
+
   let isMounted = false
   
   useEffect(() => {
@@ -87,21 +129,6 @@ function Invoice() {
 
     if(!isMounted) {
       isMounted = true
-      const getMedicine = async ()=> {
-        let { data: medicine, error } = await supabase
-        .from('medicine')
-        .select('*')
-                
-        setItems(medicine)
-      }
-
-      const getCustomers = async ()=> {
-        let { data: customers, error } = await supabase
-        .from('customers')
-        .select('*')
-          
-        setCustomers(customers)
-      }
 
       getCustomers();
       getMedicine();
@@ -164,68 +191,129 @@ function Invoice() {
     ])
     .select()
 
-    console.log(error)
-    console.log(data)
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Add Customer Failed!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      const newCustomer = {
+        name: data[0].name,
+        tel: data[0].tel,
+        email: data[0].email,
+        image: data[0].image,
+        address: data[0].address
+      }
+  
+      setCustomers([...customers, newCustomer])
 
-    const newCustomer = {
-      name: data[0].name,
-      tel: data[0].tel,
-      email: data[0].email,
-      image: data[0].image,
-      address: data[0].address
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Customer added",
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+      setName('');
+      setEmail('');
+      setPhone('');
+      setAddress('');
+      setImage('');
     }
-
-    setCustomers([...customers, newCustomer])
   }
 
   const handleSave = async ()=> {
-    const { data, error } = await supabase
-    .from('sales')
-    .insert([
-      { 
-        customer_id: customer_id, 
-        total_amount: subtotal,
-        payment_mode: mode
-      },
-    ])
-    .select()
-
-    console.log(customer_id)
-    const newData = data
-    
-    if(data != []) {
-      for (let i = 0; i < invoice.length; i++) {
+    if (customer_id === '') {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please choose a customer!",
+        timer: 2000,
+        showConfirmButton: true,
+      });
+    } else {
+      if (mode === 'momo' && installment === 0) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please choose an installment duration!",
+          timer: 2000,
+          showConfirmButton: true,
+        });
+      } else {
         const { data, error } = await supabase
-        .from('sales_detail')
-        .insert([
-          { 
-            sales_id: newData[0].id,
-            medicine_id: invoice[i].id,
-            quantity: invoice[i].quantity,
-            unit_price: invoice[i].unit_price,
-            total_price: invoice[i].total_price
-          }
-        ])
-        .select()  
-        
-        console.log(data || error)
-      }
-    }   
+          .from('sales')
+          .insert([
+            { 
+              customer_id: customer_id, 
+              total_amount: subtotal,
+              payment_mode: mode,
+              paid: paid,
+              installment: installment
+            },
+          ])
+          .select()
     
-    if(mode == 'momo') {
-      const { data, error } = await supabase
-      .from('creditTerms')
-      .insert([
-        { 
-          sales_id: newData[0].id, 
-          customers_id: customer_id,
-          current_balance: subtotal,
-          due_date: due_date,
-        },
-      ])
-      .select()
+        console.log(error)
+    
+        const newData = data
+        
+        if(data != []) {
+          for (let i = 0; i < invoice.length; i++) {
+            const { data, error } = await supabase
+            .from('sales_detail')
+            .insert([
+              { 
+                sales_id: newData[0].id,
+                medicine_id: invoice[i].id,
+                quantity: invoice[i].quantity,
+                unit_price: invoice[i].unit_price,
+                total_price: invoice[i].total_price
+              }
+            ])
+            .select()  
+            
+            console.log(data || error)
+    
+          }
+          
+          getMedicine()
+        }   
+        
+        if(mode == 'momo') {
+          const { data, error } = await supabase
+          .from('creditTerms')
+          .insert([
+            { 
+              sales_id: newData[0].id, 
+              customers_id: customer_id,
+              current_balance: subtotal,
+              due_date: due_date,
+            },
+          ])
+          .select()
+        }
+
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Invoice has been saved",
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        setInvoice([]);
+        setCustomer_id();
+        setSubtotal(0);
+      }
     }
   }
+
+
 
  
   return (
@@ -270,25 +358,31 @@ function Invoice() {
 
               <MDBox >
                 <Grid container spacing={1} mx={2} my={2}>
-                  <MDButton variant="contained" color="secondary" size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  <Button startIcon={<AddIcon />} variant="text"  size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     create invoice
-                  </MDButton>
+                  </Button>
                 </Grid>
 
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={true}
-                  entriesPerPage={true}
-                  showTotalEntries={true}
-                  
-                />  
+                { items != [] || items != null ? (
+                  <DataTable
+                    table={{ columns, rows }}
+                    isSorted={true}
+                    entriesPerPage={true}
+                    showTotalEntries={true}
+                  />  
+                ) : (
+                  <Typography variant="body2">No data</Typography>
+                ) }
+
               </MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
+
+      {/* Invoice Modal */}
       <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style={{maxHeight: "700px", marginTop: "100px"}}>
-        <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">Invoice</h1>
@@ -351,18 +445,6 @@ function Invoice() {
                     </select>
                   </div> 
                 }
-
-              {mode === 'cash' ? 
-                <div className="mb-3">
-                  <h6>Due Date</h6>
-                  <input type="date" className="form-control" id="due_date" disabled/>
-                </div>
-              :
-                <div className="mb-3">
-                  <h6>Due Date</h6>
-                  <input type="date" className="form-control" id="due_date" onChange={(e)=> setDue_date(e.target.value)}/>
-                </div>
-              } 
               </Grid>
             </Grid>
             <hr/>
@@ -385,13 +467,15 @@ function Invoice() {
                   onChange={(e)=> setQuantity(e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
-                <button type="button" className="btn btn-primary" onClick={handleFormSubmit}>Add medicine</button>
+              <Grid item xs={12} md={3}>
+                <Button variant="text" startIcon={<AddIcon />} onClick={handleFormSubmit}>
+                  Add medicine
+                </Button>
               </Grid>
             </Grid>
             <Grid container spacing={1} mt={3}>
               <Grid item xs={12} md={12}>
-                <table className="table table-sm table-striped table-bordered table-hover">
+                <table className="table table-sm table-striped table-bordered table-hover" style={{ fontSize: 15}}>
                   <thead>
                     <tr>
                       {/* <th scope="col">#</th> */}
@@ -411,23 +495,30 @@ function Invoice() {
                       </tr>
                     )}
                     <tr>
-                      <td colSpan="3" className="text-end"></td>
-                      <td className="bg-success text-white">{subtotal.toLocaleString('en-US')}</td>
+                      <td colSpan="3" className="text-end" style={{ fontWeight: "bolder"}}>Total</td>
+                      <td style={{ fontWeight: "bolder"}}>{subtotal.toLocaleString('en-US')}</td>
                     </tr>
                   </tbody>
                 </table>
-                <a href="#" style={{fontSize: "15px"}} onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</a>
+
+
+                <Grid container spacing={1} mt={4}>
+                  <Grid item xs={12} md={3}>
+                  </Grid>
+                  <Grid item xs={12} md={9} className="text-end">
+                    <Button variant="text" startIcon={<ClearIcon />} color="primary" onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</Button>
+                    <Button variant="text" startIcon={<DownloadIcon />} color="primary" onClick={handleSave} data-bs-dismiss="modal">Save</Button>
+                    <Button variant="text" startIcon={<PrintIcon />} color="primary">Print Receipt</Button>  
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
-            </div>
-            <div className="modal-footer">
-              {mode === "cash" ? <button type="button" style={{width: 100}} className="btn btn-success ">Print</button> : <button type="button" style={{width: 100}} className="btn btn-primary" onClick={handleSave}>Save</button>}
-              <button style={{width: 100}} type="button" className="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Add Customer Modal */}
       <div className="modal fade" id="newcustomer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -442,6 +533,7 @@ function Invoice() {
                   type="text" 
                   className="form-control" 
                   id="exampleFormControlInput1" 
+                  value={name}
                   placeholder="eg. John Doe"
                   onChange={(e)=> {setName(e.target.value)}}
                 />
@@ -452,6 +544,7 @@ function Invoice() {
                   type="text" 
                   className="form-control" 
                   id="exampleFormControlInput1"
+                  value={email}
                   onChange={(e)=> {setEmail(e.target.value)}}
                 />
               </div>
@@ -460,6 +553,7 @@ function Invoice() {
                 <input 
                   type="number" 
                   className="form-control" 
+                  value={phone}
                   id="exampleFormControlInput1"
                   onChange={(e)=> {setPhone(e.target.value)}}
                 />
@@ -469,6 +563,7 @@ function Invoice() {
                 <input 
                   type="text" 
                   className="form-control" 
+                  value={address}
                   id="exampleFormControlInput1"
                   onChange={(e)=> {setAddress(e.target.value)}}
                 />
@@ -478,19 +573,19 @@ function Invoice() {
                 <input 
                   type="text" 
                   className="form-control" 
+                  value={image}
                   id="exampleFormControlInput1"
                   onChange={(e)=> {setImage(e.target.value)}}
                 />
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={handleCustomer}>Add Customer</button>
+              {/* <Button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button> */}
+              <Button variant="text" startIcon={<AddIcon />} color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={handleCustomer}>Add Customer</Button>
             </div>
           </div>
         </div>
       </div>
-      
     </DashboardLayout>
   );
 }

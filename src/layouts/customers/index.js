@@ -12,9 +12,15 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-
+import Swal from 'sweetalert2';
 
 import { useEffect, useState } from "react";
+
+import Button from '@mui/material/Button';
+
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
@@ -76,30 +82,62 @@ function Customers() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
-  const [data, setData] = useState([])
+  const [data, setData] = useState([]);
+  const [customer, setCustomer] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+
 
   let isMounted = false
   
+  const getCustomers = async ()=> {
+    let { data: customers, error } = await supabase
+    .from('customers')
+    .select('*')
+            
+    setData(customers)
+    console.log(customers)
+  }
+
   useEffect(() => {
       const controller = new AbortController();
 
       if(!isMounted) {
-          isMounted = true
-          const getCustomers = async ()=> {
-            let { data: customers, error } = await supabase
-            .from('customers')
-            .select('*')
-                    
-            setData(customers)
-            console.log(customers)
-          }
-          getCustomers()
+        isMounted = true
+        getCustomers()
       }
 
       return ()=> {
           controller.abort();
       }
   }, [])
+
+  useEffect(() => {
+    const filterData = () => {
+      if (search === '') {
+        setFilteredData(data); // If no input, use the main array
+      } else {
+        const filteredArray = data.filter((item) => {
+          // Get an array of all values in the item object
+          const values = Object.values(item);
+  
+          // Check if any value includes the search term
+          const found = values.some((value) => {
+            if (typeof value === 'string') {
+              return value.toLowerCase().includes(search.toLowerCase());
+            }
+            return false;
+          });
+  
+          return found;
+        });
+  
+        setFilteredData(filteredArray);
+      }
+    };
+  
+    filterData();
+  }, [data, search]); 
 
   const handleCustomer = async ()=> {
     const { data, error } = await supabase
@@ -116,6 +154,44 @@ function Customers() {
 
     alert(data || error)
         
+  }
+
+  const handleModal = (data)=> {
+    setCustomer(data)
+  }
+
+  const handleDelete = async (customer)=> {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then( async (result) => {
+      if (result.isConfirmed) {
+        const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', customer)
+
+        if (error) {
+          Swal.fire({
+            title: "Error!",
+            text: `There was an error deleting the customer: ${error.message}`,
+            icon: "error"
+          });
+        } else {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+          getCustomers();
+        }
+      }
+    });
   }
 
   return (
@@ -149,6 +225,7 @@ function Customers() {
                       sx={{ ml: 1, flex: 1 }}
                       placeholder="Search Customers"
                       inputProps={{ 'aria-label': 'search Customers' }}
+                      onChange={(e)=> setSearch(e.target.value)}
                     />
                     <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
                       <SearchIcon />
@@ -167,7 +244,7 @@ function Customers() {
                 
                 <MDBox p={2}>
                   <Grid container spacing={1}>
-                    {data?.map((customer)=> 
+                    {filteredData?.map((customer)=> 
                       <Grid key={customer.id} item xs={12} md={3} xl={2}>
                         <Card sx={{ maxWidth: 345 }}>
                           <CardActionArea>
@@ -176,13 +253,15 @@ function Customers() {
                               height="140"
                               image={customer.image}
                               alt={customer.name}
+                              onClick={()=> handleModal(customer)}
+                              data-bs-toggle="modal" data-bs-target="#exampleModal"
                             />
                             <CardContent>
                               <Typography gutterBottom variant="h5" component="div">
                                 {customer.name}
                               </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {customer.address}
+                              <Typography variant="body2" color="text.primary">
+                                {customer.tel}
                               </Typography>
                             </CardContent>
                           </CardActionArea>
@@ -260,6 +339,58 @@ function Customers() {
           </Grid>
         </Grid>
       </MDBox>
+
+      {/* <!-- View CUstomer Modal --> */}
+      <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">Customer Information</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <Grid container spacing={3}>
+                <Grid item md={5} xs={12}>
+                  <img src={customer.image} className="img-thumbnail" alt="customer image"/>
+                </Grid>
+                <Grid item md={7} xs={12}>
+                  <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                    Name
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {customer.name}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Email
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {customer.email}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Phone
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {customer.tel}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Address
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {customer.address}
+                  </MDTypography>
+                </Grid>
+              </Grid>
+              <div className="text-end">
+                <Button variant="text" startIcon={<EditIcon />}>Edit</Button>
+                <Button variant="text" startIcon={<DeleteIcon />} color="error" data-bs-dismiss="modal" onClick={()=> handleDelete(customer.id)}>Delete</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }
