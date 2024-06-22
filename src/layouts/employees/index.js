@@ -14,6 +14,12 @@ Coded by www.creative-tim.com
 */
 
 import { useEffect, useState } from "react";
+import Button from '@mui/material/Button';
+
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -62,6 +68,9 @@ function Employees() {
   const [address, setAddress] = useState('');
   const [salary, setSalary] = useState('');
   const [img, setImg] = useState('');
+  const [staff, setStaff] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
 
   function formatNumber(num) {
     if (num >= 1000) {
@@ -93,6 +102,33 @@ function Employees() {
       }
   }, [])
 
+  useEffect(() => {
+    const filterData = () => {
+      if (search === '') {
+        setFilteredData(data); // If no input, use the main array
+      } else {
+        const filteredArray = data.filter((item) => {
+          // Get an array of all values in the item object
+          const values = Object.values(item);
+  
+          // Check if any value includes the search term
+          const found = values.some((value) => {
+            if (typeof value === 'string') {
+              return value.toLowerCase().includes(search.toLowerCase());
+            }
+            return false;
+          });
+  
+          return found;
+        });
+  
+        setFilteredData(filteredArray);
+      }
+    };
+  
+    filterData();
+  }, [data, search]); 
+
   const handleStaff = async ()=> {
     const { data, error } = await supabase
     .from('staff')
@@ -111,10 +147,15 @@ function Employees() {
     console.log(data || error)
   }
 
+  const handleModal = (data)=> {
+    setStaff(data)
+  }
+
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox pt={6} pb={3}>
+      <MDBox pt={6} pb={3}> 
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
@@ -142,6 +183,7 @@ function Employees() {
                       sx={{ ml: 1, flex: 1 }}
                       placeholder="Search Employee"
                       inputProps={{ 'aria-label': 'search employee' }}
+                      onChange={(e)=> setSearch(e.target.value)}
                     />
                     <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
                       <SearchIcon />
@@ -158,12 +200,12 @@ function Employees() {
                   </MDButton>
                 </Grid>
 
-                <MDBox>
-                  <Grid container spacing={1}>
-                    {data?.map((staff)=> 
-                      <Grid key={staff.id} item xs={12} md={3} xl={2}>
-                        <Card sx={{ maxWidth: 345 }}>
-                          <CardActionArea data-bs-toggle="modal" data-bs-target="#staff" >
+                <MDBox p={2}>
+                  <Grid container spacing={2}>
+                    {filteredData?.map((staff)=> 
+                      <Grid key={staff.id} item xs={12} mb={3} xl={2}>
+                        <Card >
+                          <CardActionArea data-bs-toggle="modal" data-bs-target="#staff" onClick={()=> handleModal(staff)}>
                             <CardMedia
                               component="img"
                               height="140"
@@ -174,8 +216,8 @@ function Employees() {
                               <Typography gutterBottom variant="h5" component="div">
                                 {staff.name}
                               </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {staff.address}
+                              <Typography variant="body2" color="text.primary">
+                                {staff.phone}
                               </Typography>
                             </CardContent>
                           </CardActionArea>
@@ -192,7 +234,7 @@ function Employees() {
         </Grid>
       </MDBox>
 
-
+      {/* Add Employee Modal */}
       <div className="modal fade" id="customer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -265,26 +307,62 @@ function Employees() {
         </div>
       </div>
 
+      {/* View Employee Modal */}
       <div className="modal fade" id="staff" tabIndex="-1" aria-labelledby="staff" aria-hidden="true">
-        <div className="modal-dialog modal-lg">
+        <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="modal-title fs-5" id="staff">Modal title</h1>
+              <h1 className="modal-title fs-5" id="staff">Staff Information</h1>
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
-              <Grid container spacing={1}>
+              <Grid container spacing={3}>
                 <Grid item md={5} xs={12}>
-                  <img src={data.image} className="img-thumbnail" alt="staff image"/>
+                  <img src={staff.image} className="img-thumbnail" alt="staff image"/>
                 </Grid>
                 <Grid item md={7} xs={12}>
-                  
+                  <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                    Name
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {staff.name}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Email
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {staff.email}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Phone
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {staff.phone}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Address
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {staff.address}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Salary
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                   Ghc {staff.salary}
+                  </MDTypography>
+
                 </Grid>
               </Grid>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" className="btn btn-primary">Save changes</button>
+              <div className="text-end">
+                {/* <Button variant="text" startIcon={<CloseIcon />} data-bs-dismiss="modal">close</Button> */}
+                <Button variant="text" startIcon={<EditIcon />}>Edit</Button>
+                <Button variant="text" startIcon={<DeleteIcon />} color="error">Delete</Button>
+              </div>
             </div>
           </div>
         </div>

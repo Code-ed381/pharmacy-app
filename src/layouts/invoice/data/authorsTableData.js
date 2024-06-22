@@ -119,39 +119,40 @@ export default function data() {
   const [data, setData] = useState([]);
   const [sales, setSales] = useState([]);
   
+  const getSalesDetail = async ()=> {
+    let { data: sales_detail, error } = await supabase
+    .from('sales_detail')
+    .select(`
+      *,
+      sales (
+        *,
+        customers(
+          *
+        )
+      ),
+      medicine (
+        *
+      )
+    `)
+    setData(sales_detail)        
+  }
+
+  const getSales = async ()=> {
+    let { data: sales, error } = await supabase
+    .from('sales')
+    .select(`
+      *,
+      customers(*)
+    `)
+
+    setSales(sales)
+  }
+
   useEffect(() => {
     const controller = new AbortController();
 
     if(!isMounted) {
       isMounted = true
-      const getSalesDetail = async ()=> {
-        let { data: sales_detail, error } = await supabase
-        .from('sales_detail')
-        .select(`
-          *,
-          sales (
-            *,
-            customers(
-              *
-            )
-          ),
-          medicine (
-            *
-          )
-        `)
-        setData(sales_detail)        
-      }
-
-      const getSales = async ()=> {
-        let { data: sales, error } = await supabase
-        .from('sales')
-        .select(`
-          *,
-          customers(*)
-        `)
-
-        setSales(sales)
-      }
 
       getSalesDetail();
       getSales();
@@ -186,7 +187,7 @@ export default function data() {
     console.log(item)
   }
 
-  const handleDelete = async (invoice)=> {
+  const handleDelete = async (invoice) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -195,31 +196,30 @@ export default function data() {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!"
-    }).then(async (result) => {
+    }).then(async (result) => {  // Make this function async
       if (result.isConfirmed) {
         const { error } = await supabase
           .from('sales')
           .delete()
-          .eq('id', invoice) 
-    
-        console.log(error)
-
-        if (error === null )
+          .eq('id', invoice);
+  
+        if (error) {
           Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success"
-          });
-        }
-        else {
-          Swal.fire({
-            title: "Delete failed!",
-            text: "Your file could not deleted.",
+            title: "Error!",
+            text: `There was an error deleting the invoice: ${error.message}`,
             icon: "error"
           });
+        } else {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Invoice has been deleted.",
+            icon: "success"
+          });
+          getSalesDetail();
+        }
       }
     });
-  }
+  };
         
 
   return {

@@ -20,9 +20,11 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+
+// Material Icons
+import DownloadIcon from '@mui/icons-material/Download';
 import ClearIcon from '@mui/icons-material/Clear';
 import PrintIcon from '@mui/icons-material/Print';
-
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -65,7 +67,7 @@ function Invoice() {
   const { columns: pColumns, rows: pRows } = projectsTableData();
   
   const [mode, setMode] = useState('cash');
-  const [installment, setInstallment] = useState('');
+  const [installment, setInstallment] = useState(0);
   const [due_date, setDue_date] = useState(new Date());
   const [medicine, setMedicine] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -84,6 +86,42 @@ function Invoice() {
   const [address, setAddress] = useState('');
 
 
+  const getMedicine = async ()=> {
+    let { data: medicine, error } = await supabase
+    .from('medicine')
+    .select('*')
+    
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to load sales!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      setItems(medicine)
+    }
+  }
+
+  const getCustomers = async ()=> {
+    let { data: customers, error } = await supabase
+    .from('customers')
+    .select('*')
+      
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to load customers!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      setCustomers(customers)
+    }
+  }
+
   let isMounted = false
   
   useEffect(() => {
@@ -91,41 +129,6 @@ function Invoice() {
 
     if(!isMounted) {
       isMounted = true
-      const getMedicine = async ()=> {
-        let { data: medicine, error } = await supabase
-        .from('medicine')
-        .select('*')
-        
-        if (error) {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Failed to load sales!",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-        } else {
-          setItems(medicine)
-        }
-      }
-
-      const getCustomers = async ()=> {
-        let { data: customers, error } = await supabase
-        .from('customers')
-        .select('*')
-          
-        if (error) {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Failed to load customers!",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-        } else {
-          setCustomers(customers)
-        }
-      }
 
       getCustomers();
       getMedicine();
@@ -224,55 +227,89 @@ function Invoice() {
   }
 
   const handleSave = async ()=> {
-    const { data, error } = await supabase
-    .from('sales')
-    .insert([
-      { 
-        customer_id: customer_id, 
-        total_amount: subtotal,
-        payment_mode: mode,
-        paid: paid,
-        installment: installment
-      },
-    ])
-    .select()
-
-    console.log(data)
-    console.log(customer_id, subtotal, paid, mode, installment)
-
-    const newData = data
-    
-    if(data != []) {
-      for (let i = 0; i < invoice.length; i++) {
+    if (customer_id === '') {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please choose a customer!",
+        timer: 2000,
+        showConfirmButton: true,
+      });
+    } else {
+      if (mode === 'momo' && installment === 0) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please choose an installment duration!",
+          timer: 2000,
+          showConfirmButton: true,
+        });
+      } else {
         const { data, error } = await supabase
-        .from('sales_detail')
-        .insert([
-          { 
-            sales_id: newData[0].id,
-            medicine_id: invoice[i].id,
-            quantity: invoice[i].quantity,
-            unit_price: invoice[i].unit_price,
-            total_price: invoice[i].total_price
-          }
-        ])
-        .select()  
-        
-        console.log(data || error)
-      }
-    }   
+          .from('sales')
+          .insert([
+            { 
+              customer_id: customer_id, 
+              total_amount: subtotal,
+              payment_mode: mode,
+              paid: paid,
+              installment: installment
+            },
+          ])
+          .select()
     
-    if(mode == 'momo') {
-      const { data, error } = await supabase
-      .from('creditTerms')
-      .insert([
-        { 
-          sales_id: newData[0].id, 
-          customers_id: customer_id,
-          current_balance: subtotal,
-          due_date: due_date,
-        },
-      ])
-      .select()
+        console.log(error)
+    
+        const newData = data
+        
+        if(data != []) {
+          for (let i = 0; i < invoice.length; i++) {
+            const { data, error } = await supabase
+            .from('sales_detail')
+            .insert([
+              { 
+                sales_id: newData[0].id,
+                medicine_id: invoice[i].id,
+                quantity: invoice[i].quantity,
+                unit_price: invoice[i].unit_price,
+                total_price: invoice[i].total_price
+              }
+            ])
+            .select()  
+            
+            console.log(data || error)
+    
+          }
+          
+          getMedicine()
+        }   
+        
+        if(mode == 'momo') {
+          const { data, error } = await supabase
+          .from('creditTerms')
+          .insert([
+            { 
+              sales_id: newData[0].id, 
+              customers_id: customer_id,
+              current_balance: subtotal,
+              due_date: due_date,
+            },
+          ])
+          .select()
+        }
+
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Invoice has been saved",
+          showConfirmButton: false,
+          timer: 1500
+        });
+
+        setInvoice([]);
+        setCustomer_id();
+        setSubtotal(0);
+      }
     }
   }
 
@@ -430,7 +467,7 @@ function Invoice() {
                   onChange={(e)=> setQuantity(e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
+              <Grid item xs={12} md={3}>
                 <Button variant="text" startIcon={<AddIcon />} onClick={handleFormSubmit}>
                   Add medicine
                 </Button>
@@ -466,11 +503,12 @@ function Invoice() {
 
 
                 <Grid container spacing={1} mt={4}>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} md={3}>
                   </Grid>
-                  <Grid item xs={12} md={6} className="text-end">
+                  <Grid item xs={12} md={9} className="text-end">
                     <Button variant="text" startIcon={<ClearIcon />} color="primary" onClick={()=> {setInvoice([]), setSubtotal(0)}}>Clear table</Button>
-                    <Button variant="text" startIcon={<PrintIcon />} color="primary" onClick={handleSave}>Print Receipt</Button>
+                    <Button variant="text" startIcon={<DownloadIcon />} color="primary" onClick={handleSave} data-bs-dismiss="modal">Save</Button>
+                    <Button variant="text" startIcon={<PrintIcon />} color="primary">Print Receipt</Button>  
                   </Grid>
                 </Grid>
               </Grid>

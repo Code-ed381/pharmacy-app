@@ -14,12 +14,17 @@ Coded by www.creative-tim.com
 */
 
 import { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
 
 // Supabase Client
 import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://pedlcwbxzcjuzwdupgwk.supabase.co';
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlZGxjd2J4emNqdXp3ZHVwZ3drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM0MzEwNzQsImV4cCI6MjAyOTAwNzA3NH0.7GZC7LjXsoUgSHXLHDvblNPoC0y_v9UjDBYiAwLywAw";
 const supabase = createClient(supabaseUrl, supabaseKey)
+
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // Material UI components
 import Paper from '@mui/material/Paper';
@@ -60,9 +65,34 @@ function Medicine() {
   const [img, setImg] = useState('');
   const [description, setDescription] = useState('');
   const [items, setItems] = useState([]);
+  const [medicine, setMedicine] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [price, setPrice] = useState(0);
   const [expiry, setExpiry] = useState(new Date());
+  const [search, setSearch] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+  
+
+  const dateChange = (timestamp)=> {
+    
+    // Parse the timestamp into a Date object
+    const date = new Date(timestamp);
+    
+    // Extract the year, month, and day
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(date.getUTCDate()).padStart(2, '0');
+
+    // Format the future date with options for day, month, year, and weekday
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    let formattedDate = date.toLocaleDateString('en-US', options);
+    
+    // Format the date as YYYY-MM-DD
+    // const formattedDate = `${day}-${month}-${year}`;
+    
+    return formattedDate; // Output: "2024-05-26"
+    
+  }
 
   const styles = {
     truncate: {
@@ -75,27 +105,55 @@ function Medicine() {
 
   let isMounted = false
   
+  const getMedicine = async ()=> {
+    let { data: medicine, error } = await supabase
+    .from('medicine')
+    .select('*')
+            
+    setItems(medicine)
+  }
+
   useEffect(() => {
     const controller = new AbortController();
-
+    
     if(!isMounted) {
       isMounted = true
-      const getMedicine = async ()=> {
-        let { data: medicine, error } = await supabase
-        .from('medicine')
-        .select('*')
-                
-        setItems(medicine)
-      }
 
       getMedicine();
     }
-
+    
     return ()=> {
       controller.abort();
     }
   }, [])
-
+  
+  useEffect(() => {
+    const filterData = () => {
+      if (search === '') {
+        setFilteredData(items); // If no input, use the main array
+      } else {
+        const filteredArray = items.filter((item) => {
+          // Get an array of all values in the item object
+          const values = Object.values(item);
+  
+          // Check if any value includes the search term
+          const found = values.some((value) => {
+            if (typeof value === 'string') {
+              return value.toLowerCase().includes(search.toLowerCase());
+            }
+            return false;
+          });
+  
+          return found;
+        });
+  
+        setFilteredData(filteredArray);
+      }
+    };
+  
+    filterData();
+  }, [items, search]); 
+  
   const handleAddMedicine = async ()=> {
     const { data, error } = await supabase
     .from('medicine')
@@ -114,7 +172,44 @@ function Medicine() {
     console.log(data || error)
   }
 
+  const handleModal = (data) => {
+    setMedicine(data)
+  }
+
+  const handleDelete = async (medicine) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {  // Make this function async
+      if (result.isConfirmed) {
+        const { error } = await supabase
+          .from('medicine')
+          .delete()
+          .eq('id', medicine);
   
+        if (error) {
+          Swal.fire({
+            title: "Error!",
+            text: `There was an error deleting the customer: ${error.message}`,
+            icon: "error"
+          });
+        } else {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+
+          getMedicine();
+        }
+      }
+    });
+  };
 
   return (
     <DashboardLayout>
@@ -147,6 +242,7 @@ function Medicine() {
                       sx={{ ml: 1, flex: 1 }}
                       placeholder="Search Medicines"
                       inputProps={{ 'aria-label': 'search medicines' }}
+                      onChange={(e)=> setSearch(e.target.value)}
                     />
                     <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
                       <SearchIcon />
@@ -159,23 +255,24 @@ function Medicine() {
                 </Grid> 
               </MDBox>
 
-              <MDBox >
+              <MDBox>
                 <Grid container spacing={1} mx={2} my={2}>
                   <MDButton variant="contained" color="secondary" size="medium" data-bs-toggle="modal" data-bs-target="#add_medicine">
                     add medicine
                   </MDButton>
                 </Grid>
 
-                <Grid container>
-                  {items?.map((item)=> 
-                    <Grid item md={3} xs={12} sx={{padding: 2}} key={item.id}>
-                      <Card sx={{ maxWidth: 345, minHeight: 300, maxHeight: 300 }}>
-                        <CardActionArea>
+                <Grid container spacing={2} p={2}>
+                  {filteredData?.map((item)=> 
+                    <Grid item md={2} xs={12} sx={{padding: 2}} key={item.id}>
+                      <Card sx={{ maxWidth: 345 }}>
+                        <CardActionArea data-bs-toggle="modal" data-bs-target="#medicine">
                           <CardMedia
                             component="img"
                             height="140"
                             image={item?.img}
                             alt={item?.name}
+                            onClick={()=> handleModal(item)}
                           />
                           <CardContent>
                             <Typography gutterBottom variant="h5" component="div">
@@ -188,7 +285,7 @@ function Medicine() {
                         </CardActionArea>
                         <CardActions>
                           <MDTypography variant="h4" color="success" mx={2}>
-                            122
+                            Ghc {item?.price}
                           </MDTypography>
                         </CardActions>
                       </Card>
@@ -272,6 +369,67 @@ function Medicine() {
           </Grid>
         </Grid>
       </MDBox>
+
+      {/* View Employee Modal */}
+      <div className="modal fade" id="medicine" tabIndex="-1" aria-labelledby="medicine" aria-hidden="true">
+        <div className="modal-dialog modal-lg modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="staff">Medicine Information</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <Grid container spacing={3}>
+                <Grid item md={5} xs={12}>
+                  <img src={medicine.img} className="img-thumbnail" alt="medicine image"/>
+                </Grid>
+                <Grid item md={7} xs={12}>
+                  <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                    Name
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {medicine.name}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Unit Price
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    Ghc {medicine.price}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Quantity
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="warning" mb={1} fontWeight="medium">
+                    {medicine.quantity}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Expiry Date
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                    {dateChange(medicine.expiry_date)}
+                  </MDTypography>
+
+                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                    Description
+                  </MDTypography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                   {medicine.description}
+                  </MDTypography>
+
+                </Grid>
+              </Grid>
+              <div className="text-end">
+                {/* <Button variant="text" startIcon={<CloseIcon />} data-bs-dismiss="modal">close</Button> */}
+                <Button variant="text" startIcon={<EditIcon />}>Edit</Button>
+                <Button variant="text" startIcon={<DeleteIcon />} color="error" data-bs-dismiss="modal" onClick={()=> handleDelete(medicine.id)}>Delete</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }
