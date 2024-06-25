@@ -66,7 +66,7 @@ function Medicine() {
   const [description, setDescription] = useState('');
   const [items, setItems] = useState([]);
   const [medicine, setMedicine] = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(0);
   const [expiry, setExpiry] = useState(new Date());
   const [search, setSearch] = useState('');
@@ -168,6 +168,28 @@ function Medicine() {
       },
     ])
     .select()
+
+    if(error) {
+      Swal.fire({
+        title: "Error!",
+        text: `There was an error deleting the customer: ${error.message}`,
+        icon: "error"
+      });
+    }
+    else {
+      Swal.fire({
+        title: "Deleted!",
+        text: "Your file has been deleted.",
+        icon: "success"
+      });
+
+      setName('');
+      setDescription('');
+      setPrice('');
+      setQuantity('');
+      setExpiry('');
+      setImg('');
+    }
     
     console.log(data || error)
   }
@@ -281,96 +303,104 @@ function Medicine() {
                             <Typography variant="body2" color="text.secondary" sx={styles.truncate}>
                               {item?.description}
                             </Typography>
+                          <MDTypography variant="h6" color="success">
+                            Ghc {item?.price}.00
+                          </MDTypography>
                           </CardContent>
                         </CardActionArea>
                         <CardActions>
-                          <MDTypography variant="h4" color="success" mx={2}>
-                            Ghc {item?.price}
-                          </MDTypography>
                         </CardActions>
                       </Card>
                     </Grid>
                   )}
                 </Grid>
 
-                <div className="modal fade" id="add_medicine" tabIndex="-1" aria-labelledby="add_medicine" aria-hidden="true">
-                  <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h5 className="modal-title">Add medicine</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div className="modal-body">
-                        <div className="mb-3">
-                          <h6>Name of Medicine</h6>
-                          <input 
-                            type="email" 
-                            className="form-control" 
-                            id="exampleFormControlInput1" 
-                            placeholder="eg. Flucocassilin"
-                            onChange={(e)=> {setName(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Quantity</h6>
-                          <input 
-                            type="number" 
-                            className="form-control" 
-                            id="exampleFormControlInput1"
-                            onChange={(e)=> {setQuantity(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Unit Price</h6>
-                          <input 
-                            type="number" 
-                            className="form-control" 
-                            id="exampleFormControlInput1"
-                            onChange={(e)=> {setPrice(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Expiry Date</h6>
-                          <input 
-                            type="date" 
-                            className="form-control" 
-                            id="expiry"
-                            onChange={(e)=> {setExpiry(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>img</h6>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            id="image"
-                            onChange={(e)=> {setImg(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Description</h6>
-                          <textarea 
-                            className="form-control" 
-                            id="exampleFormControlTextarea1" 
-                            rows="3"
-                            onChange={(e)=> {setDescription(e.target.value)}}
-                          ></textarea>
-                        </div>
-                      </div>
-                      <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={handleAddMedicine}>Save</button>
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
 
-      {/* View Employee Modal */}
+      {/* Add Medicine Modal */}
+      <div className="modal fade" id="add_medicine" tabIndex="-1" aria-labelledby="add_medicine" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Add medicine</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <h6>Name of Medicine</h6>
+                <input 
+                  type="email" 
+                  className="form-control" 
+                  id="exampleFormControlInput1" 
+                  placeholder="eg. Flucocassilin"
+                  value={name}
+                  onChange={(e)=> {setName(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Quantity</h6>
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  value={quantity}
+                  onChange={(e)=> {setQuantity(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Unit Price</h6>
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  value={price}
+                  onChange={(e)=> {setPrice(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Expiry Date</h6>
+                <input 
+                  type="date" 
+                  className="form-control" 
+                  id="expiry"
+                  value={expiry}
+                  onChange={(e)=> {setExpiry(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>img</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="image"
+                  value={img}
+                  onChange={(e)=> {setImg(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Description</h6>
+                <textarea 
+                  className="form-control" 
+                  id="exampleFormControlTextarea1" 
+                  rows="3"
+                  value={description}
+                  onChange={(e)=> {setDescription(e.target.value)}}
+                ></textarea>
+              </div>
+              <div className="text-end">
+                <Button className="btn btn-primary" data-bs-dismiss="modal" onClick={handleAddMedicine}>Save</Button>
+                <Button color="info" data-bs-dismiss="modal">Close</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* View Medicine Modal */}
       <div className="modal fade" id="medicine" tabIndex="-1" aria-labelledby="medicine" aria-hidden="true">
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">
@@ -384,37 +414,37 @@ function Medicine() {
                   <img src={medicine.img} className="img-thumbnail" alt="medicine image"/>
                 </Grid>
                 <Grid item md={7} xs={12}>
-                  <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Name
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {medicine.name}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Unit Price
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     Ghc {medicine.price}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Quantity
-                  </MDTypography>
-                  <MDTypography component="h6" variant="body2" color="warning" mb={1} fontWeight="medium">
+                  </Typography>
+                  <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {medicine.quantity}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Expiry Date
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {dateChange(medicine.expiry_date)}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Description
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                    {medicine.description}
                   </MDTypography>

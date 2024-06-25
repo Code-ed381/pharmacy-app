@@ -58,7 +58,6 @@ function Dashboard() {
     return num.toString();
   }
 
-
   let isMounted = false
   
   useEffect(() => {
