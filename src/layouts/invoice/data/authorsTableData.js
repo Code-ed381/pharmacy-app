@@ -14,7 +14,11 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+
+import ReactToPrint from 'react-to-print';
 import Swal from 'sweetalert2';
+import { useReactToPrint } from 'react-to-print';
+import { format, parseISO } from 'date-fns';
 
 // Material UI
 import Box from '@mui/material/Box';
@@ -32,7 +36,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 // Supabase Client
 import { createClient } from '@supabase/supabase-js';
@@ -50,19 +54,27 @@ import MDBadge from "components/MDBadge";
 import team2 from "assets/images/team-2.jpg";
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
+import logo from "assets/images/logos/logo.jpeg";
+
+
 
 export default function data() {
+  const receiptRef = useRef();
+  
+  const handlePrint = useReactToPrint({
+    content: () => receiptRef.current,
+  });
   
   const dateChange = (timestamp)=> {
-  
+    
     // Parse the timestamp into a Date object
     const date = new Date(timestamp);
-  
+    
     // Extract the year, month, and day
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
     const day = String(date.getUTCDate()).padStart(2, '0');
-
+    
     // Format the future date with options for day, month, year, and weekday
     let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     let formattedDate = date.toLocaleDateString('en-US', options);
@@ -74,20 +86,51 @@ export default function data() {
     
   }
 
+  const dateChangeWithTime = (timestamp) => {
+    // Parse the timestamp into a Date object
+    const date = new Date(timestamp);
+    
+    // Extract the year, month, and day
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    
+    // Extract the hours, minutes, and seconds
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    
+    // Format the hours, minutes, and seconds with AM/PM
+    const formattedHours = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = String(seconds).padStart(2, '0');
+    
+    // Format the future date with options for day, month, year, and weekday
+    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    let formattedDate = date.toLocaleDateString('en-US', options);
+    
+    // Add the formatted time to the formatted date
+    formattedDate += ` ${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
+    
+    return formattedDate;
+  }
+  
+  
   function calculateInstallmentDate(purchaseDate, weeks) {
     // Convert the purchase date to a Date object
     let date = new Date(purchaseDate);
     
     // Calculate the number of days to add (weeks * 7)
     let daysToAdd = weeks * 7;
-  
+    
     // Add the days to the date
     date.setDate(date.getDate() + daysToAdd);
 
     // Format the future date with options for day, month, year, and weekday
     let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     let futureDate = date.toLocaleDateString('en-US', options);
-
+    
     return futureDate;
   }
 
@@ -98,7 +141,7 @@ export default function data() {
         <MDTypography display="block" variant="button" fontWeight="medium">
           {name}
         </MDTypography>
-        <MDTypography variant="caption">{email}</MDTypography>
+        {/* <MDTypography variant="caption">{email}</MDTypography> */}
       </MDBox>
     </MDBox>
   );
@@ -119,6 +162,77 @@ export default function data() {
   const [data, setData] = useState([]);
   const [sales, setSales] = useState([]);
   
+  const ReceiptComponent = React.forwardRef((props, ref) => {
+    return (
+      <div ref={ref} style={{ fontFamily: 'monospace', fontSize: '15px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <img src={logo} alt="logo" width="400"/>
+          {/* <h4>Top Up Pharmacy Ltd</h4> */}
+          <p>ASYLUM DOWN</p>
+          <p>Tel: {medicines[0]?.sales?.customers?.tel}</p>
+        </div>
+        <div>
+          <p>Customer: {medicines[0]?.sales?.customers?.name}</p>
+          <p>Invoice ID: INV-FAX-{medicines[0]?.sales?.id}</p>
+          <p>Attendant: MARGARET AMEDZAH</p>
+          <p>Payment Mode: {medicines[0]?.sales?.payment_mode}</p>
+          <p>Date: {dateChangeWithTime(medicines[0]?.sales?.created_at)}</p>
+          <p>No of Print: 1 Original</p>
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Qty</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Form</th>
+              <th>Tax</th>
+              <th>Disc</th>
+              <th>Size</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>MARK II INHALER </td>
+              <td>15.6</td>
+              <td>Single</td>
+              <td>-</td>
+              <td>-</td>
+              <td>1</td>
+              <td>15</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>CETRIZAN TABS 10MG EXIFER</td>
+              <td>0.7</td>
+              <td>Tab</td>
+              <td>-</td>
+              <td>-</td>
+              <td>1</td>
+              <td>7</td>
+            </tr>
+          </tbody>
+        </table>
+        <div>
+          <p></p>
+          <p>Invoice Status: Completed</p>
+          <p>Cash Customer: {medicines[0]?.sales?.customers?.name}</p>
+          <p>Subtotal: {medicines[0]?.sales?.total_amount.toLocaleString('en-US')}</p>
+          <p>TaxTotal: {medicines[0]?.sales?.tax.toLocaleString('en-US')}</p>
+          <p>Total To Pay: GHS {(medicines[0]?.sales?.total_amount + medicines[0]?.sales?.tax).toLocaleString('en-US')}</p>
+          <p>Tendered: {medicines[0]?.sales?.paid.toLocaleString('en-US')}</p>
+          <p>Amount Due: {(medicines[0]?.sales?.total_amount- medicines[0]?.sales?.paid).toLocaleString("en-US")}</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p>Software by Lavama.com</p>
+          <p>+233 592 596 180</p>
+        </div>
+      </div>
+    );
+  });
+
   const getSalesDetail = async ()=> {
     let { data: sales_detail, error } = await supabase
     .from('sales_detail')
@@ -129,7 +243,7 @@ export default function data() {
         customers(
           *
         )
-      ),
+        ),
       medicine (
         *
       )
@@ -184,7 +298,7 @@ export default function data() {
     .eq('sales_id', item?.id)
 
     setMedicines(sales_detail)
-    console.log(item)
+    console.log(sales_detail)
   }
 
   const handleDelete = async (invoice) => {
@@ -226,7 +340,9 @@ export default function data() {
     columns: [
       { Header: "customer", accessor: "author", align: "left" },
       { Header: "Invoice ID", accessor: "medicine", align: "center" },
-      { Header: "total amount (GHc)", accessor: "amount", align: "center" },
+      { Header: "Sub Total (GHc)", accessor: "amount", align: "center" },
+      { Header: "Tax (GHc)", accessor: "tax", align: "center" },
+      { Header: "Discount (GHc)", accessor: "discount", align: "center" },
       { Header: "Paid (GHc)", accessor: "paid", align: "center" },
       { Header: "balance (GHc)", accessor: "balance", align: "center" },
       { Header: "Payment Mode", accessor: "status", align: "center" },
@@ -237,7 +353,7 @@ export default function data() {
     rows: sales?.map(item => ({ 
       author: <Author image={item?.customers?.image} name={item?.customers?.name} email={item?.customers?.email} />,
       medicine: (
-        <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+        <MDTypography component="a" href="#"  color="text" fontWeight="medium">
          {item?.id}
         </MDTypography>
       ),
@@ -252,19 +368,29 @@ export default function data() {
         </MDTypography>
       ),
       amount: (
-        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+        <MDTypography component="h5" color="text" fontWeight="medium">
           {item?.total_amount.toLocaleString('en-US')}
         </MDTypography>
       ),
       paid: (
-        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+        <MDTypography component="h5" color="text" fontWeight="medium">
           {item?.paid.toLocaleString('en-US')}
         </MDTypography>
       ),
-      balance: (
-        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-          {(item?.total_amount - item?.paid).toLocaleString('en-US')}
+      tax: (
+        <MDTypography component="h6" color="text" fontWeight="medium">
+          {item?.tax.toLocaleString('en-US')}
         </MDTypography>
+      ),
+      discount: (
+        <MDTypography component="h6" color="text" fontWeight="medium">
+          {item?.discount.toLocaleString('en-US')}
+        </MDTypography>
+      ),
+      balance: (
+        <Typography component="h6"  color="text" fontWeight="medium">
+          {(item?.total_amount - item?.paid).toLocaleString('en-US')}
+        </Typography>
       ),
       action: (
         <>
@@ -272,12 +398,6 @@ export default function data() {
             <MDTypography className="btn btn-outline-primary btn-sm" variant="caption" color="text" fontWeight="medium" onClick={()=> handleView(item)} data-bs-toggle="modal" data-bs-target="#view" sx={{width: '70px'}}>
               View
               <VisibilityIcon />
-            </MDTypography>
-          </MDBox>
-          <MDBox>
-            <MDTypography className="btn btn-outline-success btn-sm" variant="caption" color="text" fontWeight="medium" sx={{width: '70px'}}>
-              Print
-            <PrintIcon />
             </MDTypography>
           </MDBox>
   
@@ -290,58 +410,70 @@ export default function data() {
                   <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div className="modal-body text-start">
-                  <Grid container spacing={1}>
-                    <Grid item xs={12} md={6}>
+                  <ReceiptComponent ref={receiptRef}/>
+                  {/* <Grid container spacing={1}>
+                    <Grid item xs={12} md={5}>
                       <div className="mb-3">
-                        <MDTypography component="h6" mb={1} variant="subtitle2" color="text" fontWeight="medium">
+                        <Typography variant="h5" gutterBottom component="div"> 
                           Customer Information
-                        </MDTypography>
+                        </Typography>
 
                         <Grid container spacing={1}>
                           <Grid item xs={12} md={5}>
                             <img src={invoice?.customers?.image} className="img-thumbnail" alt="customer image"/>
                           </Grid>
-                          <Grid item xs={12} md={5}>
-                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                          <Grid item xs={12} md={6}>
+                            <Typography variant="h6" component="div"> 
                               Name
+                            </Typography>
+                            <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                              {invoice?.customers?.name}
                             </MDTypography>
-                            <label className="form-label">{invoice?.customers?.name}</label>
 
-                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                            <Typography variant="h6" component="div"> 
                               Phone
+                            </Typography>
+                            <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                              {invoice?.customers?.tel}
                             </MDTypography>
-                            <label className="form-label">{invoice?.customers?.tel}</label>
 
-                            <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
-                              Email
-                            </MDTypography>
-                            <label className="form-label">{invoice?.customers?.email}</label>
                           </Grid>
                         </Grid>
+                        <Typography variant="h6" component="div"> 
+                          Email
+                        </Typography>
+                        <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                          {invoice?.customers?.email}
+                        </MDTypography>
                       </div>
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
-                      <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="h5" gutterBottom component="div"> 
                         Billing Information
-                      </MDTypography>
+                      </Typography>
                       <div className="mb-3">
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                        <Typography variant="h6" component="div"> 
                           Mode of Payment
-                        </MDTypography>
+                        </Typography>
                         <MDBadge badgeContent={invoice?.payment_mode} color={invoice?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
                       </div>
                       { invoice?.payment_mode === "momo" ? (
                         <div className="mb-3">
-                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                          <Typography variant="h6" component="div"> 
                             Installment Duration 
+                          </Typography>
+                          <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                            {invoice?.installment} weeks
                           </MDTypography>
-                          <label className="form-label">{invoice?.installment} weeks</label>
 
-                          <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                          <Typography variant="h6" component="div"> 
                             Due Date
+                          </Typography>
+                          <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                            {calculateInstallmentDate(invoice?.created_at, invoice?.installment)}
                           </MDTypography>
-                          <label className="form-label">{calculateInstallmentDate(invoice?.created_at, invoice?.installment)}</label>
+
                         </div>
                       ) : (
                         " "
@@ -350,13 +482,15 @@ export default function data() {
 
                     <Grid item xs={12} md={3}>
                       <div className="mb-3">
-                        <MDTypography component="h6" variant="body2" color="text" fontWeight="medium">
+                        <Typography variant="h5" gutterBottom component="div"> 
                           Invoice Information
-                        </MDTypography>
-                        <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                        </Typography>
+                        <Typography variant="h6" component="div"> 
                           Date
+                        </Typography>
+                        <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
+                          {dateChange(invoice?.created_at)}
                         </MDTypography>
-                        <label htmlFor="exampleFormControlInput1" className="form-label">{dateChange(invoice?.created_at)}</label>
                         <MDBadge badgeContent={invoice?.sales?.payment_mode} color={invoice?.sales?.payment_mode === 'cash' ? 'info' : 'warning'} variant="gradient" size="lg" />
                       </div>
                     </Grid>
@@ -393,16 +527,16 @@ export default function data() {
                           </tr>
                         </tbody>
                       </table>
+                      </Grid>
+                      </Grid> */}
                       <div className="text-end">
                         <Button variant="text" startIcon={<DeleteIcon />} onClick={()=> handleDelete(invoice?.id)}>
                           Delete invoice
                         </Button>
-                        <Button variant="text" startIcon={<LocalPrintshopIcon />}>
+                        <Button variant="text" startIcon={<LocalPrintshopIcon />} onClick={handlePrint}>
                           Print Invoice
                         </Button>
                       </div>
-                    </Grid>
-                  </Grid>
                 </div>
               </div>
             </div>

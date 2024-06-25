@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
-
+import { format } from 'date-fns';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -341,7 +341,7 @@ function Invoice() {
                   <Grid item xs={12} md={6}>
                   <Paper
                     component="form"
-                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', maxWidth: 400 }}
                   >
                     <InputBase
                       sx={{ ml: 1, flex: 1 }}
@@ -358,9 +358,9 @@ function Invoice() {
 
               <MDBox >
                 <Grid container spacing={1} mx={2} my={2}>
-                  <Button startIcon={<AddIcon />} variant="text"  size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  <MDButton variant="contained" color="secondary" size="medium" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     create invoice
-                  </Button>
+                  </MDButton>
                 </Grid>
 
                 { items != [] || items != null ? (
@@ -404,7 +404,7 @@ function Invoice() {
                   new customer
                 </Button>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={5}>
                 <div className="mb-3 mx-5">
                   <FormControl>
                     <h6 id="demo-radio-buttons-group-label">Mode of Payment</h6>
@@ -421,7 +421,7 @@ function Invoice() {
                   </FormControl>
                 </div>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={3}>
                 {mode === 'cash' ? 
                   <div className="mb-3">
                     <h6>Installment Duration</h6>
@@ -482,6 +482,7 @@ function Invoice() {
                       <th scope="col">Name</th>
                       <th scope="col">Quantity</th>
                       <th scope="col">Unit Price (Ghc)</th>
+                      <th scope="col">Tax (Ghc)</th>
                       <th scope="col">Total Price (Ghc)</th>
                     </tr>
                   </thead>
@@ -491,18 +492,45 @@ function Invoice() {
                         <td>{medicine.name}</td>
                         <td>{medicine.quantity}</td>
                         <td>{medicine.unit_price}</td>
+                        <td>-</td>
                         <td>{medicine.total_price.toLocaleString('en-US')}</td>
                       </tr>
                     )}
                     <tr>
-                      <td colSpan="3" className="text-end" style={{ fontWeight: "bolder"}}>Total</td>
+                      <td colSpan="4" className="text-end" style={{ fontWeight: "bolder"}}>Total</td>
                       <td style={{ fontWeight: "bolder"}}>{subtotal.toLocaleString('en-US')}</td>
                     </tr>
                   </tbody>
                 </table>
+                <Grid container> 
+                  <Grid item xs={12} md={6}></Grid>
+                  {/* <Grid item xs={12} md={4}></Grid> */}
+                  <Grid item xs={12} md={6}>
+                    <div >
+                      { mode === 'cash' ? (
+                        <>
+                          {/* <h4 id="demo-radio-buttons-group-label">Paid</h4> */}
+                          <div className="input-group input-group-lg mb-3">
+                            <span className="input-group-text">Paid</span>
+                            <span className="input-group-text">GHS</span>
+                            <input 
+                              type="text" 
+                              className="form-control" 
+                              aria-label="Amount (to the nearest dollar)" 
+                              onChange={(e)=> setPaid(e.target.value)}
+                            />
+                            <span className="input-group-text">.00</span>
+                          </div>
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </Grid>
+                </Grid>
 
 
-                <Grid container spacing={1} mt={4}>
+                <Grid container spacing={1} mt={1}>
                   <Grid item xs={12} md={3}>
                   </Grid>
                   <Grid item xs={12} md={9} className="text-end">

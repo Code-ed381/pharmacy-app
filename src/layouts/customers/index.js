@@ -260,9 +260,9 @@ function Customers() {
                               <Typography gutterBottom variant="h5" component="div">
                                 {customer.name}
                               </Typography>
-                              <Typography variant="body2" color="text.primary">
+                              <MDTypography variant="h6" color="success">
                                 {customer.tel}
-                              </Typography>
+                              </MDTypography>
                             </CardContent>
                           </CardActionArea>
                         </Card>
@@ -270,75 +270,81 @@ function Customers() {
                     )}
                   </Grid>
                 </MDBox>
-
-                <div className="modal fade" id="customer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                      <div className="modal-header">
-                        <h1 className="modal-title fs-5" id="exampleModalLabel">New Customer</h1>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div className="modal-body">
-                        <div className="mb-3">
-                          <h6>Full Name</h6>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            id="exampleFormControlInput1" 
-                            placeholder="eg. John Doe"
-                            onChange={(e)=> {setName(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Email</h6>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            id="exampleFormControlInput1"
-                            onChange={(e)=> {setEmail(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Phone Number</h6>
-                          <input 
-                            type="number" 
-                            className="form-control" 
-                            id="exampleFormControlInput1"
-                            onChange={(e)=> {setPhone(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Address</h6>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            id="exampleFormControlInput1"
-                            onChange={(e)=> {setAddress(e.target.value)}}
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <h6>Image URL</h6>
-                          <input 
-                            type="text" 
-                            className="form-control" 
-                            id="exampleFormControlInput1"
-                            onChange={(e)=> {setImage(e.target.value)}}
-                          />
-                        </div>
-                      </div>
-                      <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={handleCustomer}>Save</button>
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
   
               </MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
+
+      {/* Add Customer Modal */}
+      <div className="modal fade" id="customer" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">New Customer</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <h6>Full Name</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1" 
+                  placeholder="eg. John Doe"
+                  value={name}
+                  onChange={(e)=> {setName(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Email</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  value={email}
+                  onChange={(e)=> {setEmail(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Phone Number</h6>
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  value={phone}
+                  onChange={(e)=> {setPhone(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Address</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  value={address}
+                  onChange={(e)=> {setAddress(e.target.value)}}
+                />
+              </div>
+              <div className="mb-3">
+                <h6>Image URL</h6>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  id="exampleFormControlInput1"
+                  value={image}
+                  onChange={(e)=> {setImage(e.target.value)}}
+                />
+              </div>
+              <div className="text-end">
+                <Button className="btn btn-primary" data-bs-dismiss="modal" onClick={handleCustomer}>Save</Button>
+                <Button color="info" data-bs-dismiss="modal">Close</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* <!-- View CUstomer Modal --> */}
       <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -354,30 +360,30 @@ function Customers() {
                   <img src={customer.image} className="img-thumbnail" alt="customer image"/>
                 </Grid>
                 <Grid item md={7} xs={12}>
-                  <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Name
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {customer.name}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Email
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {customer.email}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Phone
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {customer.tel}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Address
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {customer.address}
                   </MDTypography>

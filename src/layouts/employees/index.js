@@ -15,6 +15,7 @@ Coded by www.creative-tim.com
 
 import { useEffect, useState } from "react";
 import Button from '@mui/material/Button';
+import Swal from 'sweetalert2';
 
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -81,19 +82,20 @@ function Employees() {
 
   let isMounted = false
   
+  const getStaff = async ()=> {
+    let { data: staff, error } = await supabase
+    .from('staff')
+    .select('*')
+            
+    setData(staff)
+    console.log(staff)
+  }
+
   useEffect(() => {
       const controller = new AbortController();
 
       if(!isMounted) {
           isMounted = true
-          const getStaff = async ()=> {
-            let { data: staff, error } = await supabase
-            .from('staff')
-            .select('*')
-                    
-            setData(staff)
-            console.log(staff)
-          }
           getStaff()
       }
 
@@ -144,11 +146,59 @@ function Employees() {
     ])
     .select()
 
-    console.log(data || error)
+    if (error) {
+      Swal.fire({
+        title: "Error!",
+        text: `There was an error deleting the customer: ${error.message}`,
+        icon: "error"
+      });
+    } else {
+      Swal.fire({
+        title: "Success!",
+        text: "Employee has been added.",
+        icon: "success"
+      });
+
+      getStaff();
+    }
   }
 
   const handleModal = (data)=> {
     setStaff(data)
+  }
+
+  const handleDelete = async (staff)=> {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then( async (result) => {
+      if (result.isConfirmed) {
+        const { error } = await supabase
+        .from('staff')
+        .delete()
+        .eq('id', staff)
+
+        if (error) {
+          Swal.fire({
+            title: "Error!",
+            text: `There was an error deleting the customer: ${error.message}`,
+            icon: "error"
+          });
+        } else {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Staff has been deleted.",
+            icon: "success"
+          });
+          getStaff();
+        }
+      }
+    });
   }
 
 
@@ -216,9 +266,9 @@ function Employees() {
                               <Typography gutterBottom variant="h5" component="div">
                                 {staff.name}
                               </Typography>
-                              <Typography variant="body2" color="text.primary">
+                              <MDTypography variant="h6" color="success">
                                 {staff.phone}
-                              </Typography>
+                              </MDTypography>
                             </CardContent>
                           </CardActionArea>
                         </Card>
@@ -298,10 +348,10 @@ function Employees() {
                   onChange={(e)=> {setImg(e.target.value)}}
                 />
               </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-primary" onClick={handleStaff}>Save</button>
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <div className="text-end">
+                <Button className="btn btn-primary" data-bs-dismiss="modal" onClick={handleStaff}>Save</Button>
+                <Button color="info" data-bs-dismiss="modal">Close</Button>
+              </div>
             </div>
           </div>
         </div>
@@ -321,37 +371,37 @@ function Employees() {
                   <img src={staff.image} className="img-thumbnail" alt="staff image"/>
                 </Grid>
                 <Grid item md={7} xs={12}>
-                  <MDTypography component="h6" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Name
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {staff.name}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Email
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {staff.email}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Phone
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {staff.phone}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Address
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                     {staff.address}
                   </MDTypography>
 
-                  <MDTypography component="h5" variant="caption" color="text" fontWeight="medium">
+                  <Typography variant="h6" component="div">
                     Salary
-                  </MDTypography>
+                  </Typography>
                   <MDTypography component="h6" variant="body2" color="text" mb={1} fontWeight="medium">
                    Ghc {staff.salary}
                   </MDTypography>
@@ -361,7 +411,7 @@ function Employees() {
               <div className="text-end">
                 {/* <Button variant="text" startIcon={<CloseIcon />} data-bs-dismiss="modal">close</Button> */}
                 <Button variant="text" startIcon={<EditIcon />}>Edit</Button>
-                <Button variant="text" startIcon={<DeleteIcon />} color="error">Delete</Button>
+                <Button variant="text" startIcon={<DeleteIcon />} color="error" data-bs-dismiss="modal" onClick={()=> handleDelete(staff.id)}>Delete</Button>
               </div>
             </div>
           </div>
